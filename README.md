@@ -13,7 +13,7 @@ In the main directory where you the package lives, enter the Julia environment (
 
 ## Testing Plasma Techniques
 
-`0` will do the setup work of computing the coefficients at K_u Legendre nodes for a plasma model defined by qself and xmax.
+`setup_legendre_integration(K_u,qself,xmax,parallel)` will do the setup work of computing the coefficients at K_u Legendre nodes for a plasma model defined by qself and xmax.
 
 `compute_tabIminusXi(tabomega,taba,xmax,struct_tabLeg)` will perform the Legendre integration (struct_tabLeg) over the coefficients (taba) at an array of complex frequencies (tabomega) for a model parameterised by frequency xmax.
 

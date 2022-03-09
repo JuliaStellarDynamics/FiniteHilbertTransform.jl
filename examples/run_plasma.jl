@@ -2,6 +2,7 @@
 An example call:
 julia --threads 4 PerturbPlasma.jl --linear damped --parallel yes
 
+julia --threads 4 run_plasma.jl --linear unstable --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20
 
 =#
 
@@ -71,7 +72,7 @@ function main()
                "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5" # Name of the file where the data is dumped
     ##################################################
     print("Dumping the data | ") # Printing
-    @time dump(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
+    @time dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
 
 end
 

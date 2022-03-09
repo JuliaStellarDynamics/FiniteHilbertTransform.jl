@@ -8,6 +8,7 @@ include("Legendre/Precompute.jl")
 # Bring in the integration tools
 include("Legendre/Legendre.jl")
 
+# Bring in the velocity
 include("PlasmaModel.jl")
 
 # everything from here down is Legendre specific right now.
@@ -103,15 +104,15 @@ function get_IminusXi(omg::Complex{Float64},
                       struct_tabLeg::struct_tabLeg_type,
                       LINEAR::String="damped")
     #=
-    ##################################################
-    # Function that computes the values of I-Xi(omg)
-    # for a given complex frequency
-    ##################################################
+     Function that computes the values of I-Xi(omg)
+     for a given complex frequency
     =#
-    #####
-    varpi = omg/(xmax) # Rescaled COMPLEX frequency
-    #####
-    get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR) # Computing the Hilbert-transformed Legendre functions
+
+    # Rescale the COMPLEX frequency
+    varpi = omg/xmax
+
+    # Computing the Hilbert-transformed Legendre functions
+    get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR)
     tabDLeg = struct_tabLeg.tabDLeg # Name of the array where the D_k(w) are stored
     #####
     xi = 0.0 + 0.0*im # Initialisation of the xi
@@ -132,7 +133,7 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              xmax::Float64,
                              #K_u::Int64,
                              struct_tabLeg::Vector{struct_tabLeg_type},
-                             LINEAR::String="damped")
+                             LINEAR::String)
     #=
      Function that computes I-Xi(omg)
      for all the considered frequencies
@@ -146,7 +147,7 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
         #####
         thr = Threads.threadid() # ID of the current thread
 
-        val = get_IminusXi(tabomega[iomega],taba,xmax,K_u,struct_tabLeg[thr]) #
+        val = get_IminusXi(tabomega[iomega],taba,xmax,K_u,struct_tabLeg[thr],LINEAR) #
 
         #Computing I-Xi(omg) using the parallel containers
 

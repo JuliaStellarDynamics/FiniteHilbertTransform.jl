@@ -1,8 +1,13 @@
 using HDF5 # To have access to .hf5 formats
 
-function dump(namefile::String,
-              tabomega::Vector{Complex{Float64}},
-              tabIminusXi::Vector{Complex{Float64}})
+function dump_tabIminusXi(namefile::String,
+                          tabomega::Vector{Complex{Float64}},
+                          tabIminusXi::Vector{Complex{Float64}})
+    #=dump_tabIminusXi
+
+    dump the primary mode table
+
+    =#
     file = h5open(namefile,"w") # Opening the file
     #write(file,"tabOmega",tabOmega) # Writing tabOmega to the file
     #write(file,"tabEta",tabEta) # Writing tabEta to the file

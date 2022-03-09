@@ -61,17 +61,20 @@ function get_tabLeg!(omg::Complex{Float64},
     =#
 
     if (LINEAR == "unstable") # Searching for unstable modes, i.e. Im[w] > 0
+        #println("Using UNSTABLE Legendre integration.")
         tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
 
     elseif (LINEAR == "neutral") # Searching for neutral modes, i.e. Im[w] = 0
+        #println("Using NEUTRAL Legendre integration.")
         tabLeg!_NEUTRAL(omg,K_u,struct_tabLeg)
 
     elseif (LINEAR == "damped") # Searching for damped modes, i.e. Im[w] < 0
+        #println("Using DAMPED Legendre integration.")
         tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
 
     else
         # By defaut, we do not make any analytical continuation and search for unstable modes
-        tabLeg!_UNSTABLE(omg::Complex{Float64},struct_tabLeg::struct_tabLeg_type) # ATTENTION, use `const' to avoid allocations
+        tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg) # ATTENTION, use `const' to avoid allocations
     end
 end
 
@@ -107,6 +110,7 @@ end
 function tabQLeg!(omg::Complex{Float64},
                   val_0::Complex{Float64},
                   val_1::Complex{Float64},
+                  K_u::Int64,
                   tabQLeg::Array{Complex{Float64},1})
     #=tabQLeg
     # Function that pre-computes the Hilbert-transformed
