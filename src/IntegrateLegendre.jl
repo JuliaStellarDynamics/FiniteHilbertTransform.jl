@@ -49,14 +49,13 @@ end
 
 
 function compute_taba(tabwGLquad::Vector{Float64},
-              tabG::Vector{Float64},
-              tabPGLquad::Matrix{Float64},
-              tabINVcGLquad::Vector{Float64},
-              PARALLEL::Bool)
-    #=##################################################
-    # Function that pre-computes the coefficients a
-    # using the G-L quadrature
-    ##################################################
+                      tabG::Vector{Float64},
+                      tabPGLquad::Matrix{Float64},
+                      tabINVcGLquad::Vector{Float64},
+                      PARALLEL::Bool)
+    #=
+     Function that pre-computes the coefficients a
+     using the G-L quadrature
     =#
     K_u = size(tabwGLquad, 1)
 
