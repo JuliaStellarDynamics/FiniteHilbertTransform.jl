@@ -65,6 +65,10 @@ function parse_commandline()
             help     = "Maximum imaginary frequency"
             arg_type = Float64
             default  = -0.01
+        "--Cmode"
+            help     = "Continuation mode for damped calculation (legendre/chebyshev,rational)"
+            arg_type = String
+            default  = "legendre"
     end
 
     return parse_args(tabargs)

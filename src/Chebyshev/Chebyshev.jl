@@ -1,9 +1,9 @@
 
 
 
-function get_Xi(omg::Complex{Float64},
-                taba::Vector{Float64},
-                LINEAR::String="damped")
+function get_Chebyshev_Xi(omg::Complex{Float64},
+                          taba::Vector{Float64},
+                          LINEAR::String="damped")
     #=
      Defining the correct computation function
     =#

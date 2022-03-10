@@ -1,2 +1,4 @@
 data/*
 
+src/Isochrone/*
+examples/run_isochrone.jl

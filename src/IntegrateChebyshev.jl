@@ -1,56 +1,15 @@
 using FFTW # To perform discrete sine transform
 
+
 # Bring in the prefactors
 include("Chebyshev/Precompute.jl")
 
 # Bring in the integration tools
 include("Chebyshev/Chebyshev.jl")
 
-# Bring in the velocity
-include("PlasmaModel.jl")
 
-
-
-function compute_tabG(tabuCheby::Vector{Float64},
-                      qSELF::Float64,
-                      xmax::Float64,
-                      PARALLEL::Bool)
-    #=
-     Pre-computes the needed values of G(u)
-    =#
-
-    K_u = size(tabuCheby,1)
-    tabG = zeros(Float64,K_u)
-
-    # Loop over the Chebyshev nodes
-    if (PARALLEL)
-
-        Threads.@threads for i=1:K_u
-
-            # Current Chebyshev node
-            u_i = tabuCheby[i]
-
-            # Computing the value of G[u_i]
-            tabG[i] = get_G(u_i,qSELF,xmax)
-        end
-    else
-
-        for i=1:K_u
-
-            # Current Chebyshev node
-            u_i = tabuCheby[i]
-
-             # Computing the value of G[u_i]
-            tabG[i] = get_G(u_i,qSELF,xmax)
-        end
-    end
-
-    return tabG
-end
-
-
-function compute_taba(tabG::Vector{Float64},
-                      PARALLEL::Bool=false)
+function compute_aChebyshev(tabG::Vector{Float64},
+                            PARALLEL::Bool=false)
     #=
      Function that pre-computes the Chebyshev projection
      using a FFT
@@ -81,18 +40,18 @@ end
 
 
 
-function get_IminusXi(omg::Complex{Float64},
-                      taba::Vector{Float64},
-                      xmax::Float64,
-                      LINEAR::String)
+function get_Chebyshev_IminusXi(omg::Complex{Float64},
+                                taba::Vector{Float64},
+                                xmax::Float64,
+                                LINEAR::String)
     #=
-    # Function that computes the values of I-Xi(omg)
-    # for a given complex frequency
+     Function that computes the values of I-Xi(omg)
+     for a given complex frequency
     =#
     #####
     varpi = omg/xmax # Rescaled COMPLEX frequency
     #####
-    Xi = get_Xi(varpi,taba,LINEAR)
+    Xi = get_Chebyshev_Xi(varpi,taba,LINEAR)
     #####
     IminusXi = 1.0 - Xi # Computing the value of 1.0 - xi
     #####
@@ -118,12 +77,12 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
 
             thr = Threads.threadid() # ID of the current thread
 
-            tabIminusXi[iomega] = get_IminusXi(tabomega[iomega],taba,xmax,LINEAR) #
+            tabIminusXi[iomega] = get_Chebyshev_IminusXi(tabomega[iomega],taba,xmax,LINEAR) #
 
         end
     else
         for iomega=1:nomega
-            tabIminusXi[iomega] = get_IminusXi(tabomega[iomega],taba,xmax,LINEAR)
+            tabIminusXi[iomega] = get_Chebyshev_IminusXi(tabomega[iomega],taba,xmax,LINEAR)
         end
     end
 
@@ -144,7 +103,7 @@ function setup_chebyshev_integration(K_u::Int64,
     tabG = compute_tabG(tabuCheby,qself,xmax,PARALLEL)
 
     # compute the coefficients for integration
-    taba = compute_taba(tabG,PARALLEL)
+    taba = compute_aChebyshev(tabG,PARALLEL)
 
     return taba
 

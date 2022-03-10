@@ -8,51 +8,13 @@ include("Legendre/Precompute.jl")
 # Bring in the integration tools
 include("Legendre/Legendre.jl")
 
-# Bring in the velocity
-include("PlasmaModel.jl")
-
-# everything from here down is Legendre specific right now.
-function compute_tabG(tabuGLquad::Vector{Float64},
-                      qSELF::Float64,
-                      xmax::Float64,
-                      PARALLEL::Bool=false)
-    #=
-
-    ##################################################
-    # Function that pre-computes the values of tabG
-    ##################################################
-    =#
-
-    # how many u values are we evaluating?
-
-    K_u = size(tabuGLquad, 1)
-
-    tabG = zeros(Float64,K_u)
-
-    if (PARALLEL) # The calculation is made in parallel
-        Threads.@threads for i=1:K_u # Loop over the G-L nodes
-            u_i = tabuGLquad[i] # Current value of the G-L node
-            #####
-            tabG[i] = get_G(u_i,qSELF,xmax) # Computing the value of G[u_i]
-        end
-    else # The calculation is not made in parallel
-        for i=1:K_u # Loop over the G-L nodes
-            u_i = tabuGLquad[i] # Current value of the G-L node
-            #####
-            tabG[i] = get_G(u_i,qSELF,xmax) # Computing the value of G[u_i]
-        end
-    end
-
-    # no return; tabG is modified in place.
-    return tabG
-end
 
 
-function compute_taba(tabwGLquad::Vector{Float64},
-                      tabG::Vector{Float64},
-                      tabPGLquad::Matrix{Float64},
-                      tabINVcGLquad::Vector{Float64},
-                      PARALLEL::Bool)
+function compute_aLegendre(tabwGLquad::Vector{Float64},
+                           tabG::Vector{Float64},
+                           tabPGLquad::Matrix{Float64},
+                           tabINVcGLquad::Vector{Float64},
+                           PARALLEL::Bool)
     #=
      Function that pre-computes the coefficients a
      using the G-L quadrature
@@ -96,10 +58,9 @@ end
 
 
 
-function get_IminusXi(omg::Complex{Float64},
+function get_Legendre_IminusXi(omg::Complex{Float64},
                       taba::Vector{Float64},
                       xmax::Float64,
-                      K_u::Int64,
                       struct_tabLeg::struct_tabLeg_type,
                       LINEAR::String="damped")
     #=
@@ -108,6 +69,8 @@ function get_IminusXi(omg::Complex{Float64},
     =#
 
     # Rescale the COMPLEX frequency
+    K_u = size(taba,1)
+
     varpi = omg/xmax
 
     # Computing the Hilbert-transformed Legendre functions
@@ -130,7 +93,6 @@ end
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},
                              xmax::Float64,
-                             #K_u::Int64,
                              struct_tabLeg::Vector{struct_tabLeg_type},
                              LINEAR::String)
     #=
@@ -146,7 +108,7 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
         #####
         thr = Threads.threadid() # ID of the current thread
 
-        val = get_IminusXi(tabomega[iomega],taba,xmax,K_u,struct_tabLeg[thr],LINEAR) #
+        val = get_Legendre_IminusXi(tabomega[iomega],taba,xmax,struct_tabLeg[thr],LINEAR) #
 
         #Computing I-Xi(omg) using the parallel containers
 
@@ -167,7 +129,7 @@ function setup_legendre_integration(K_u::Int64,qself::Float64,xmax::Float64,PARA
     tabG = compute_tabG(tabuGLquad,qself,xmax,PARALLEL)
 
     # compute the coefficients for integration
-    taba = compute_taba(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad,PARALLEL)
+    taba = compute_aLegendre(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad,PARALLEL)
 
     # set up the table for integration
     struct_tabLeg = initialize_struct_tabLeg(K_u,PARALLEL)

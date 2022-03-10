@@ -1,15 +1,19 @@
 #=
 An example call:
 
-julia --threads 4 run_plasma_chebyshev.jl --linear damped --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20
+julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 --K_u 25 --nOmega 801 --nEta 300 --xmax 20
 
 =#
 
 
 include("../src/Arguments.jl")
-include("../src/IntegrateChebyshev.jl")
 include("../src/PlasmaModel.jl")
+include("../src/Integrate.jl")
+include("../src/IntegrateChebyshev.jl")
+include("../src/IntegrateLegendre.jl")
 include("../src/IO.jl")
+
+
 
 function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
 
@@ -48,6 +52,8 @@ function main()
     LINEAR   = parsed_args["linear"]
     K_u      = parsed_args["K_u"]
 
+
+
     if (PARALLEL)
         nb_threads = Threads.nthreads() # Total number of threads for parallel runs
         println("Using $nb_threads threads.")
@@ -61,13 +67,20 @@ function main()
     # (flat) array of omega values to check
     tabomega = get_tabomega(tabOmega,tabEta)
 
-    # build
-    taba = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
+    if parsed_args["Cmode"] == "chebyshev"
+        taba = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
+        println(taba)
+        @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,LINEAR)
+    end
 
-    @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,LINEAR)
+    if parsed_args["Cmode"] == "legendre"
+        taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
+        println(taba)
+        @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,struct_tabLeg,LINEAR)
+    end
 
     prefixnamefile = "../data/" # Prefix of the directory where the files are dumped
-    namefile = prefixnamefile*"data_CHEBYSHEV_Plasma_Ku_"*string(K_u)*
+    namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
                "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5" # Name of the file where the data is dumped
     ##################################################
     print("Dumping the data | ") # Printing
