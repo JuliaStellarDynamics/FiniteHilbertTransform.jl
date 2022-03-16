@@ -50,6 +50,29 @@ function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
 end
 
 
+function test_ninepoints(taba::Vector{Float64},
+                         K_u::Int64,
+                         struct_tabLeg::struct_tabLeg_type,)
+    #=function to test nine unique points for values of D_k
+
+    =#
+    upperleft  = -1.5 + 1.5im
+    uppercen   =  0.0 + 1.5im
+    upperright =  1.5 + 1.5im
+    midleft    = -1.5 + 0.0im
+    midcen     =  0.0 + 0.0im
+    midright   =  1.5 + 0.0im
+    lowerleft  = -1.5 - 1.5im
+    lowercen   =  0.0 - 1.5im
+    lowerright =  1.5 - 1.5im
+
+    println(tabLeg!_UNSTABLE(upperleft,taba),"||",tabLeg!_UNSTABLE(uppercen,taba),"||",tabLeg!_UNSTABLE(upperright,taba))
+    println(tabLeg!_UNSTABLE(midleft,taba),"||",tabLeg!_UNSTABLE(midcen,taba),"||",tabLeg!_UNSTABLE(midright,taba))
+    println(tabLeg!_UNSTABLE(lowerleft,taba),"||",tabLeg!_UNSTABLE(lowercen,taba),"||",tabLeg!_UNSTABLE(lowerright,taba))
+
+
+end
+
 
 function get_tabLeg!(omg::Complex{Float64},
                      K_u::Int64,

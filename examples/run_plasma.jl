@@ -16,6 +16,11 @@ include("../src/IO.jl")
 
 
 function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
+    #=get_tabomega
+
+    construct the table of omega values (complex frequency) from the specified real and imaginary components.
+
+    =#
 
     nOmega = size(tabOmega,1)
     nEta   = size(tabEta,1)
@@ -26,9 +31,8 @@ function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
     #####
     for iOmega=1:nOmega # Loop over the real part of the frequency
         for iEta=1:nEta # Loop over the complex part of the frequency
-            tabomega[icount] = tabOmega[iOmega] + im*tabEta[iEta] # Filling the current value of the complex frequency
-            #####
-            icount += 1 # Updating the counter
+            tabomega[icount] = tabOmega[iOmega] + im*tabEta[iEta] # Fill the current value of the complex frequency
+            icount += 1 # Update the counter
         end
     end
 
@@ -53,7 +57,6 @@ function main()
     K_u      = parsed_args["K_u"]
 
 
-
     if (PARALLEL)
         nb_threads = Threads.nthreads() # Total number of threads for parallel runs
         println("Using $nb_threads threads.")
@@ -69,21 +72,26 @@ function main()
 
     if parsed_args["Cmode"] == "chebyshev"
         taba = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
+        test_ninepoints(taba)
         println(taba)
         @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,LINEAR)
     end
 
     if parsed_args["Cmode"] == "legendre"
         taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
+        #test_ninepoints()
         println(taba)
         @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,struct_tabLeg,LINEAR)
     end
 
-    prefixnamefile = "../data/" # Prefix of the directory where the files are dumped
+    # Prefix of the directory where the files are dumped
+    prefixnamefile = "../data/"
+
+    # Name of the file where the data is dumped
     namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
-               "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5" # Name of the file where the data is dumped
-    ##################################################
-    print("Dumping the data | ") # Printing
+               "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5"
+
+    print("Dumping the data | ")
     @time dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
 
 end
