@@ -16,7 +16,7 @@ function tabLeg!_UNSTABLE(omg::Complex{Float64},
     val_0_Q = log(1.0-omg) - log(-1.0-omg) # Initial value for k = 0
     val_1_Q = 2.0 + omg*val_0_Q           # Initial value for k = 1
     #####
-    tabQLeg!(omg,val_0_Q,val_1_Q,K_u,tabQLeg) # Computing the tabQLeg
+    tabQLeg!(omg,val_0_Q,val_1_Q,tabQLeg) # Computing the tabQLeg
     ##########
     # Computing D_k(w)
     #####

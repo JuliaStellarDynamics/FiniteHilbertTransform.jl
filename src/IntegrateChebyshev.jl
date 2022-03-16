@@ -59,6 +59,35 @@ function get_Chebyshev_IminusXi(omg::Complex{Float64},
 end
 
 
+
+function test_ninepointsC(taba::Vector{Float64},xmax::Float64,digits::Int64=4)
+    #=function to test nine unique points for values of D_k
+
+    =#
+    upperleft  = -1.5 + 1.5im
+    uppercen   =  0.0 + 1.5im
+    upperright =  1.5 + 1.5im
+    midleft    = -1.5 + 0.0im
+    midcen     =  0.0 + 0.0im
+    midright   =  1.5 + 0.0im
+    lowerleft  = -1.5 - 1.5im
+    lowercen   =  0.0 - 1.5im
+    lowerright =  1.5 - 1.5im
+
+    println(round(get_Chebyshev_IminusXi(upperleft,taba,xmax,"unstable"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(uppercen,taba,xmax,"unstable"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(upperright,taba,xmax,"unstable"),digits=digits))
+    println(round(get_Chebyshev_IminusXi(midleft,taba,xmax,"neutral"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(midcen,taba,xmax,"neutral"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(midright,taba,xmax,"neutral"),digits=digits))
+    println(round(get_Chebyshev_IminusXi(lowerleft,taba,xmax,"damped"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(lowercen,taba,xmax,"damped"),digits=digits)," || ",
+            round(get_Chebyshev_IminusXi(lowerright,taba,xmax,"damped"),digits=digits))
+end
+
+
+
+
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},
                              xmax::Float64,

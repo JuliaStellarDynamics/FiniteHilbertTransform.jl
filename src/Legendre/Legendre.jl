@@ -133,7 +133,6 @@ end
 function tabQLeg!(omg::Complex{Float64},
                   val_0::Complex{Float64},
                   val_1::Complex{Float64},
-                  K_u::Int64,
                   tabQLeg::Array{Complex{Float64},1})
     #=tabQLeg
     # Function that pre-computes the Hilbert-transformed

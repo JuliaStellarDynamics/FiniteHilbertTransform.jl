@@ -1,27 +1,5 @@
 
 
-function test_ninepoints(taba::Vector{Float64})
-    #=function to test nine unique points for values of D_k
-
-    =#
-    upperleft  = -1.5 + 1.5im
-    uppercen   =  0.0 + 1.5im
-    upperright =  1.5 + 1.5im
-    midleft    = -1.5 + 0.0im
-    midcen     =  0.0 + 0.0im
-    midright   =  1.5 + 0.0im
-    lowerleft  = -1.5 - 1.5im
-    lowercen   =  0.0 - 1.5im
-    lowerright =  1.5 - 1.5im
-
-    println(get_Xi_UNSTABLE(upperleft,taba),"||",get_Xi_UNSTABLE(uppercen,taba),"||",get_Xi_UNSTABLE(upperright,taba))
-    println(get_Xi_UNSTABLE(midleft,taba),"||",get_Xi_UNSTABLE(midcen,taba),"||",get_Xi_UNSTABLE(midright,taba))
-    println(get_Xi_UNSTABLE(lowerleft,taba),"||",get_Xi_UNSTABLE(lowercen,taba),"||",get_Xi_UNSTABLE(lowerright,taba))
-
-
-end
-
-
 
 function get_Chebyshev_Xi(omg::Complex{Float64},
                           taba::Vector{Float64},

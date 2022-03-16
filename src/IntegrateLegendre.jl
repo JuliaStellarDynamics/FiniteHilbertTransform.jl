@@ -87,7 +87,33 @@ function get_Legendre_IminusXi(omg::Complex{Float64},
     return IminusXi # Output
 end
 
+function test_ninepointsL(taba::Vector{Float64},
+                          xmax::Float64,
+                          struct_tabLeg::struct_tabLeg_type,
+                          digits::Int64=4)
+    #=function to test nine unique points for values of D_k
 
+    =#
+    upperleft  = -1.5 + 1.5im
+    uppercen   =  0.0 + 1.5im
+    upperright =  1.5 + 1.5im
+    midleft    = -1.5 + 0.0im
+    midcen     =  0.0 + 0.0im
+    midright   =  1.5 + 0.0im
+    lowerleft  = -1.5 - 1.5im
+    lowercen   =  0.0 - 1.5im
+    lowerright =  1.5 - 1.5im
+
+    println(round(get_Legendre_IminusXi(upperleft,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(uppercen,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(upperright,taba,xmax,struct_tabLeg,"unstable"),digits=digits))
+    println(round(get_Legendre_IminusXi(midleft,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(midcen,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(midright,taba,xmax,struct_tabLeg,"neutral"),digits=digits))
+    println(round(get_Legendre_IminusXi(lowerleft,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(lowercen,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(lowerright,taba,xmax,struct_tabLeg,"damped"),digits=digits))
+end
 
 
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
