@@ -6,13 +6,13 @@ function compute_tabG(uNodes::Vector{Float64},
                       xmax::Float64,
                       PARALLEL::Bool)
     #=
-     Pre-computes the needed values of G(u)
+     Pre-computes the needed values of G(u) for the specified plasma model
     =#
 
     K_u = size(uNodes,1)
     tabG = zeros(Float64,K_u)
 
-    # Loop over the Chebyshev nodes
+    # Loop over the nodes
     if (PARALLEL)
 
         Threads.@threads for i=1:K_u
