@@ -72,7 +72,7 @@ function main()
 
     if parsed_args["Cmode"] == "chebyshev"
         taba = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
-        test_ninepoints(taba)
+        #test_ninepoints(taba)
         println(taba)
         @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,LINEAR)
     end
@@ -85,7 +85,7 @@ function main()
     end
 
     # Prefix of the directory where the files are dumped
-    prefixnamefile = "../data/"
+    prefixnamefile = "data/"
 
     # Name of the file where the data is dumped
     namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*

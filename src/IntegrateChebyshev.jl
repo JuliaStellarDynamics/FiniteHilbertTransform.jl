@@ -39,7 +39,10 @@ function compute_aChebyshev(tabG::Vector{Float64},
 end
 
 
+"""get_Chebyshev_IminusXi
 
+compute $({\bf I}-{\bf \Xi}(\omega))$ for a single frequency.
+"""
 function get_Chebyshev_IminusXi(omg::Complex{Float64},
                                 taba::Vector{Float64},
                                 xmax::Float64,
@@ -87,16 +90,16 @@ end
 
 
 
+"""compute_tabIminusXi
 
+compute $({\bf I}-{\bf \Xi}(\omega))$ for all considered frequencies.
+"""
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},
                              xmax::Float64,
                              LINEAR::String,
                              PARALLEL::Bool=true)
-    #=
-     Function that computes I-Xi(omg)
-     for all the considered frequencies
-    =#
+
     K_u = size(taba,1)
     nomega = size(tabomega,1)
     tabIminusXi = zeros(Complex{Float64},nomega) # Table to store the value of det[I-Xi].
@@ -119,13 +122,18 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
 
 end
 
+"""setup_chebyshev_integration
 
+fill in the arrays for Chebyshev quadrature,
+compute G(u),
+compute the a coefficients for integration.
+"""
 function setup_chebyshev_integration(K_u::Int64,
                                      qself::Float64,
                                      xmax::Float64,
                                      PARALLEL::Bool=false)
 
-    # Filling in the arrays used in the G-L quadrature (src/Precompute.jl)
+    # Filling in the arrays used in the Chebyshev quadrature (src/Precompute.jl)
     tabuCheby = get_tabuCheby(K_u)
 
     # compute the function G(u)
