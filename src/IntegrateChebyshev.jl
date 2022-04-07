@@ -41,7 +41,7 @@ end
 
 """get_Chebyshev_IminusXi
 
-compute $({\bf I}-{\bf \Xi}(\omega))$ for a single frequency.
+compute ``({\\bf I}-{\\bf \\Xi}(\\omega))`` for a single frequency.
 """
 function get_Chebyshev_IminusXi(omg::Complex{Float64},
                                 taba::Vector{Float64},
@@ -92,7 +92,7 @@ end
 
 """compute_tabIminusXi
 
-compute $({\bf I}-{\bf \Xi}(\omega))$ for all considered frequencies.
+compute ``({\\bf I}-{\\bf \\Xi}(\\omega))`` for all considered frequencies.
 """
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},

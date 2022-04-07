@@ -1,7 +1,7 @@
 #=
 An example call:
 
-julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 --K_u 25 --nOmega 801 --nEta 300 --xmax 20
+julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 --K_u 200 --nOmega 801 --nEta 300 --xmax 20
 
 =#
 
