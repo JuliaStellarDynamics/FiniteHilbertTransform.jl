@@ -2,7 +2,7 @@ using FFTW # To perform discrete sine transform
 
 
 # Bring in the prefactors
-include("Chebyshev/Precompute.jl")
+include("Chebyshev/PrecomputeChebyshev.jl")
 
 # Bring in the integration tools
 include("Chebyshev/Chebyshev.jl")

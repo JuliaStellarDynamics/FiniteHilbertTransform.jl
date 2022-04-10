@@ -3,28 +3,31 @@
 using FastGaussQuadrature
 
 # Bring in the prefactors
-include("Legendre/Precompute.jl")
+include("Legendre/PrecomputeLegendre.jl")
 
 # Bring in the integration tools
 include("Legendre/Legendre.jl")
 
 
+"""compute_aLegendre
 
+for all values of u:
+compute a_k(u) by looping over Legendre weights w(u), P_k(u) values, and G(u) values.
+
+parallel or non-parallel options
+"""
 function compute_aLegendre(tabwGLquad::Vector{Float64},
                            tabG::Vector{Float64},
                            tabPGLquad::Matrix{Float64},
                            tabINVcGLquad::Vector{Float64},
-                           PARALLEL::Bool)
-    #=
-     Function that pre-computes the coefficients a
-     using the G-L quadrature
-    =#
+                           PARALLEL::Bool=true)
+
     K_u = size(tabwGLquad, 1)
 
     taba = zeros(Float64,K_u)
 
+    if (PARALLEL) # If the calculation is made in parallel
 
-    if (PARALLEL) # The calculation is made in parallel
         Threads.@threads for k=0:(K_u-1) # Loop over the Legendre functions
             res = 0.0 # Initialisation of the result
             for i=1:K_u # Loop over the G-L nodes
@@ -34,10 +37,12 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
                 res += w*G*P # Update of the sum
             end
             res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
-            #####
+
             taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
         end
-    else # The calculation is not made in parallel
+
+    else # If the calculation is not made in parallel...
+
         for k=0:(K_u-1) # Loop over the Legendre functions
             res = 0.0 # Initialisation of the result
             for i=1:K_u # Loop over the G-L nodes
@@ -47,9 +52,10 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
                 res += w*G*P # Update of the sum
             end
             res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
-            #####
+
             taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
         end
+
     end
 
     return taba
@@ -57,7 +63,11 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
 end
 
 
+"""get_Legendre_IminusXi
 
+perform the loop calculation a_k*D_k, after computing D_k
+
+"""
 function get_Legendre_IminusXi(omg::Complex{Float64},
                       taba::Vector{Float64},
                       xmax::Float64,
@@ -75,47 +85,24 @@ function get_Legendre_IminusXi(omg::Complex{Float64},
 
     # Computing the Hilbert-transformed Legendre functions
     get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR)
-    tabDLeg = struct_tabLeg.tabDLeg # Name of the array where the D_k(w) are stored
+    #tabDLeg = struct_tabLeg.tabDLeg # Name of the array where the D_k(w) are stored
     #####
-    xi = 0.0 + 0.0*im # Initialisation of the xi
-    #####
+
+    xi = 0.0 + 0.0*im # Initialise xi
     for k=0:(K_u-1) # Loop over the Legendre functions
-        xi += taba[k+1]*tabDLeg[k+1] # Adding a contribution. ATTENTION, to the shift of the array.
+        xi += taba[k+1]*struct_tabLeg.tabDLeg[k+1] # Adding a contribution. ATTENTION, to the shift of the array.
     end
-    #####
-    IminusXi = 1.0 - xi # Computing the value of 1.0 - xi
+
+    IminusXi = 1.0 - xi # Compute 1.0 - xi
     return IminusXi # Output
 end
 
-function test_ninepointsL(taba::Vector{Float64},
-                          xmax::Float64,
-                          struct_tabLeg::struct_tabLeg_type,
-                          digits::Int64=4)
-    #=function to test nine unique points for values of D_k
 
-    =#
-    upperleft  = -1.5 + 1.5im
-    uppercen   =  0.0 + 1.5im
-    upperright =  1.5 + 1.5im
-    midleft    = -1.5 + 0.0im
-    midcen     =  0.0 + 0.0im
-    midright   =  1.5 + 0.0im
-    lowerleft  = -1.5 - 1.5im
-    lowercen   =  0.0 - 1.5im
-    lowerright =  1.5 - 1.5im
+"""compute_tabIminusXi
 
-    println(round(get_Legendre_IminusXi(upperleft,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(uppercen,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(upperright,taba,xmax,struct_tabLeg,"unstable"),digits=digits))
-    println(round(get_Legendre_IminusXi(midleft,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(midcen,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(midright,taba,xmax,struct_tabLeg,"neutral"),digits=digits))
-    println(round(get_Legendre_IminusXi(lowerleft,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(lowercen,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(lowerright,taba,xmax,struct_tabLeg,"damped"),digits=digits))
-end
+wrapper to parallelise calculations of I-Xi
 
-
+"""
 function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},
                              xmax::Float64,
@@ -145,7 +132,11 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
 
 end
 
+"""setup_legendre_integration
 
+build various tables for integrating the plasma problem with Legendre
+
+"""
 function setup_legendre_integration(K_u::Int64,qself::Float64,xmax::Float64,PARALLEL::Bool=false)
 
     # Filling in the arrays used in the G-L quadrature (src/Precompute.jl)
@@ -162,4 +153,39 @@ function setup_legendre_integration(K_u::Int64,qself::Float64,xmax::Float64,PARA
 
     return taba,struct_tabLeg
 
+end
+
+
+
+"""
+
+routine to test the different integration regimes for the plasma case
+
+"""
+function test_ninepointsL(taba::Vector{Float64},
+                          xmax::Float64,
+                          struct_tabLeg::struct_tabLeg_type,
+                          digits::Int64=4)
+    #=function to test nine unique points for values of D_k
+
+    =#
+    upperleft  = -1.5 + 1.5im
+    uppercen   =  0.0 + 1.5im
+    upperright =  1.5 + 1.5im
+    midleft    = -1.5 + 0.0im
+    midcen     =  0.0 + 0.0im
+    midright   =  1.5 + 0.0im
+    lowerleft  = -1.5 - 1.5im
+    lowercen   =  0.0 - 1.5im
+    lowerright =  1.5 - 1.5im
+
+    println(round(get_Legendre_IminusXi(upperleft,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(uppercen,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(upperright,taba,xmax,struct_tabLeg,"unstable"),digits=digits))
+    println(round(get_Legendre_IminusXi(midleft,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(midcen,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(midright,taba,xmax,struct_tabLeg,"neutral"),digits=digits))
+    println(round(get_Legendre_IminusXi(lowerleft,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(lowercen,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(get_Legendre_IminusXi(lowerright,taba,xmax,struct_tabLeg,"damped"),digits=digits))
 end

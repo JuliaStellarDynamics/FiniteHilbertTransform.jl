@@ -15,16 +15,19 @@
 
 =#
 
+"""struct_tabLeg_type
+Define a structure that contains all the tables needed for the Legendre calculations
+"""
 struct struct_tabLeg_type
-    #=
-    # Define a structure that contains all the tables
-    # needed for the Legendre calculations
-    =#
+
     tabPLeg::Array{Complex{Float64},1} # Static container for tabPLeg
     tabQLeg::Array{Complex{Float64},1} # Static container for tabQLeg
     tabDLeg::Array{Complex{Float64},1} # Static container for tabDLeg
 end
 
+"""struct_tabLeg_create
+initialiser for struct_tabLeg_type
+"""
 function struct_tabLeg_create(K_u::Int64)
     # Function that creates a struct_tabLeg
     return struct_tabLeg_type(zeros(Complex{Float64},K_u), # Table for tabPLeg
@@ -32,7 +35,9 @@ function struct_tabLeg_create(K_u::Int64)
                               zeros(Complex{Float64},K_u)) # Table for tabDLeg
 end
 
-
+"""initialize_struct_tabLeg
+parallelise initialisation of struct_tabLeg_type
+"""
 function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
     #=
     =#
@@ -50,30 +55,9 @@ function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
 end
 
 
-function test_ninepoints(taba::Vector{Float64},
-                         K_u::Int64,
-                         struct_tabLeg::struct_tabLeg_type,)
-    #=function to test nine unique points for values of D_k
-
-    =#
-    upperleft  = -1.5 + 1.5im
-    uppercen   =  0.0 + 1.5im
-    upperright =  1.5 + 1.5im
-    midleft    = -1.5 + 0.0im
-    midcen     =  0.0 + 0.0im
-    midright   =  1.5 + 0.0im
-    lowerleft  = -1.5 - 1.5im
-    lowercen   =  0.0 - 1.5im
-    lowerright =  1.5 - 1.5im
-
-    println(tabLeg!_UNSTABLE(upperleft,taba),"||",tabLeg!_UNSTABLE(uppercen,taba),"||",tabLeg!_UNSTABLE(upperright,taba))
-    println(tabLeg!_UNSTABLE(midleft,taba),"||",tabLeg!_UNSTABLE(midcen,taba),"||",tabLeg!_UNSTABLE(midright,taba))
-    println(tabLeg!_UNSTABLE(lowerleft,taba),"||",tabLeg!_UNSTABLE(lowercen,taba),"||",tabLeg!_UNSTABLE(lowerright,taba))
-
-
-end
-
-
+"""
+fill struct_tabLeg at a given complex frequency for the integration being considered
+"""
 function get_tabLeg!(omg::Complex{Float64},
                      K_u::Int64,
                      struct_tabLeg::struct_tabLeg_type,
@@ -102,28 +86,26 @@ function get_tabLeg!(omg::Complex{Float64},
 end
 
 
-
+"""Heaviside
+Heaviside function on the interval [-1,1]
+Here, H[x] has a REAL argument, and returns
+0   for x < -1
+1/2 for x = -1
+1   for -1 < x < 1
+1/2 for x = 1
+0   for 1 < x
+ATTENTION, the equality tests on Float64 might not be very robust
+"""
 function Heaviside(x::Float64)
-    #=
-    # Heaviside function on the interval [-1,1]
-    # Here, H[x] has a REAL argument, and returns
-    # 0   for x < -1
-    # 1/2 for x = -1
-    # 1   for -1 < x < 1
-    # 1/2 for x = 1
-    # 0   for 1 < x
-    # ATTENTION, the equality tests on Float64 might not be very robust
-    =#
-
-    if     (x <  -1.0) # Left of the interval
+    if     (x <  -1.0)      # Left of the interval
         return 0.0
-    elseif (x == -1.0) # Left edge of the interval
+    elseif (x == -1.0)      # Left edge of the interval
         return 0.5
     elseif (-1.0 < x < 1.0) # Within the interval
         return 1.0
-    elseif (x ==  1.0) # Right edge of the interval
+    elseif (x ==  1.0)      # Right edge of the interval
         return 0.5
-    elseif (1.0 < x) # Right of the interval
+    elseif (1.0 < x)        # Right of the interval
         return 0.0
     end
 end
@@ -135,49 +117,50 @@ function tabQLeg!(omg::Complex{Float64},
                   val_1::Complex{Float64},
                   tabQLeg::Array{Complex{Float64},1})
     #=tabQLeg
-    # Function that pre-computes the Hilbert-transformed
-    # Legendre functions for a given complex frequency
-    # Q_k(w) = INT[P_k(u)/(u-w),{u,-1,1}]
-    # ATTENTION, this is == -2 q_k(w)
-    # with q_k(w) the Legendre functions of the second kind
-    # Arguments are:
-    # + omg: COMPLEX frequency.      ATTENTION, has to be complex.
-    # + val_0: Initial value in k=0. ATTENTION, has to be complex.
-    # + val_1: Initial value in k=1. ATTENTION, has to be complex.
-    # + tabQLeg: Container where to store the results
-    # There are two possible algorithms:
-    # + Close to the real line [-1,1], we use an upward recurrence
-    # + Far-away from the real line[-1,1], we use a downward recurrence
-    # The transition from the two regimes follows from the thesis
-    # Stable Implementation of Three-Term Recurrence Relations
-    # Pascal Frederik Heiter, June, 2010
-    # https://www.uni-ulm.de/fileadmin/website_uni_ulm/mawi.inst.070/funken/bachelorarbeiten/bachelorthesis_pfh.pdf
+     Function that pre-computes the Hilbert-transformed
+     Legendre functions for a given complex frequency
+     Q_k(w) = INT[P_k(u)/(u-w),{u,-1,1}]
+     ATTENTION, this is == -2 q_k(w)
+     with q_k(w) the Legendre functions of the second kind
+     for REAL values of w.
+
+     Arguments are:
+     + omg: COMPLEX frequency.      ATTENTION, has to be complex.
+     + val_0: Initial value in k=0. ATTENTION, has to be complex.
+     + val_1: Initial value in k=1. ATTENTION, has to be complex.
+     + tabQLeg: Container where to store the results
+     There are two possible algorithms:
+     + Close to the real line [-1,1], we use an upward recurrence
+     + Far-away from the real line[-1,1], we use a downward recurrence
+     The transition from the two regimes follows from the thesis
+     Stable Implementation of Three-Term Recurrence Relations
+     Pascal Frederik Heiter, June, 2010
+     https://www.uni-ulm.de/fileadmin/website_uni_ulm/mawi.inst.070/funken/bachelorarbeiten/bachelorthesis_pfh.pdf
     =#
-    #####
+
     K_u = size(tabQLeg,1)
 
     logINVTOL = log(10^(14)) # Logarithm of the inverse of the tolerance of the algorithm
-    #####
+
     u, v = real(omg), imag(omg) # Real/Imag part of the frequency
     u2, v2 = u^(2), v^(2) # Squared quantities
-    #####
+
+    # use an ellipse to decide if we are going up or down in the recursion
     b = min(1.0,4.5/((K_u+1.0)^(1.17))) # Value of ellise parameter
-    b2 = b^(2) # Squared quantity
-    a2 = 1.0+b2 # Second parameter of the ellipse
-    #####
+    b2 = b^(2)                          # Squared quantity
+    a2 = 1.0+b2                         # Second parameter of the ellipse
+
     # Testing whether or not we are close to the axis [-1,1]
-    if ((u2/a2) + (v2/b2) <= 1.0) # Within the ellipse
-        #####
+    if ((u2/a2) + (v2/b2) <= 1.0)       # Within the ellipse
         tabLeg_UP!(omg,val_0,val_1,K_u,tabQLeg) # If we are sufficiently close to [-1,1], we use the forward recurrence
-    else # Outside of the ellipse
-        #####
+    else                                # Outside of the ellipse
         # Determining the size of the warm-up region
         z2 = abs(u) + abs(v)*im
         ctmp0 = sqrt(z2*z2 - 1.0)
         tmp00 = 2.0*log(abs(z2 + ctmp0))
-        #####
+
         K_c = convert(Int64,K_u + ceil(logINVTOL/tmp00)) # Index at which the backward warm-up is started
-        #####
+
         tabLeg_BACK!(omg,val_0,K_c,K_u,tabQLeg) # If we are sufficiently far away from [-1,1], we use the backward recurrence
     end
 end
@@ -199,7 +182,6 @@ function tabPLeg!(omg::Complex{Float64},
      For the Legendre functions, we always use the forward recurrence
     =#
     #####
-
     # For P_k(w), we always use the UPWARD recurrence.
     tabLeg_UP!(omg,val_0,val_1,K_u,tabPLeg)
 end
@@ -272,14 +254,14 @@ function tabLeg_BACK!(omg::Complex{Float64},
     # Starting to store the values of D_(k)[omg]
     for k=(K_u-1):-1:0 # ATTENTION, the step is `-1'.
         v = ((2.0*k+3.0)*omg*v0 - (k+2.0)*v1)/(k+1.0) # Computing D_(k)[omg]
-        #####
+
         tabLeg[k+1] = v # Filling in the value of D_(k)[omg]. ATTENTION, to the shift in the array index
-        #####
+
         v0, v1 = v, v0 # Shifting the temporary variables
     end
-    #####
+
     pref = val_0/tabLeg[0+1] # Prefactor by which all the values have to be rescaled, so that it is equal to val_0 for k=0. ATTENTION, to the shift of the array.
-    #####
+
     for k=0:(K_u-1) # Rescaling all the computed values
         tabLeg[k+1] *= pref # Performing the rescaling. ATTENTION, to the shift in the array index
     end
