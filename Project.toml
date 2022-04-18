@@ -1,7 +1,7 @@
 name = "PerturbPlasma"
 uuid = "68cdf181-988b-4042-8999-0b9541c1c3c2"
 authors = ["Mike Petersen <petersen@iap.fr>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
