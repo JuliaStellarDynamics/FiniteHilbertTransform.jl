@@ -3,8 +3,7 @@
 
 function compute_tabG(uNodes::Vector{Float64},
                       qSELF::Float64,
-                      xmax::Float64,
-                      PARALLEL::Bool)
+                      xmax::Float64)
     #=
      Pre-computes the needed values of G(u) for the specified plasma model
     =#
@@ -13,26 +12,14 @@ function compute_tabG(uNodes::Vector{Float64},
     tabG = zeros(Float64,K_u)
 
     # Loop over the nodes
-    if (PARALLEL)
+    Threads.@threads for i=1:K_u
 
-        Threads.@threads for i=1:K_u
+        # Current node position
+        u_i = uNodes[i]
 
-            # Current node position
-            u_i = uNodes[i]
+        # Compute the value of G[u_i]
+        tabG[i] = get_G(u_i,qSELF,xmax)
 
-            # Compute the value of G[u_i]
-            tabG[i] = get_G(u_i,qSELF,xmax)
-        end
-    else
-
-        for i=1:K_u
-
-            # Current node position
-            u_i = uNodes[i]
-
-             # Compute the value of G[u_i]
-            tabG[i] = get_G(u_i,qSELF,xmax)
-        end
     end
 
     return tabG

@@ -19,43 +19,23 @@ parallel or non-parallel options
 function compute_aLegendre(tabwGLquad::Vector{Float64},
                            tabG::Vector{Float64},
                            tabPGLquad::Matrix{Float64},
-                           tabINVcGLquad::Vector{Float64},
-                           PARALLEL::Bool=true)
+                           tabINVcGLquad::Vector{Float64})
 
     K_u = size(tabwGLquad, 1)
 
     taba = zeros(Float64,K_u)
 
-    if (PARALLEL) # If the calculation is made in parallel
-
-        Threads.@threads for k=0:(K_u-1) # Loop over the Legendre functions
-            res = 0.0 # Initialisation of the result
-            for i=1:K_u # Loop over the G-L nodes
-                w = tabwGLquad[i] # Current weight
-                G = tabG[i] # Current value of G[u_i]
-                P = tabPGLquad[k+1,i] # Current value of P_k. ATTENTION, to the shift of the array. ATTENTION, to the order of the arguments.
-                res += w*G*P # Update of the sum
-            end
-            res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
-
-            taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
+    Threads.@threads for k=0:(K_u-1) # Loop over the Legendre functions
+        res = 0.0 # Initialisation of the result
+        for i=1:K_u # Loop over the G-L nodes
+            w = tabwGLquad[i] # Current weight
+            G = tabG[i] # Current value of G[u_i]
+            P = tabPGLquad[k+1,i] # Current value of P_k. ATTENTION, to the shift of the array. ATTENTION, to the order of the arguments.
+            res += w*G*P # Update of the sum
         end
+        res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
 
-    else # If the calculation is not made in parallel...
-
-        for k=0:(K_u-1) # Loop over the Legendre functions
-            res = 0.0 # Initialisation of the result
-            for i=1:K_u # Loop over the G-L nodes
-                w = tabwGLquad[i] # Current weight
-                G = tabG[i] # Current value of G[u_i]
-                P = tabPGLquad[k+1,i] # Current value of P_k. ATTENTION, to the shift of the array. ATTENTION, to the order of the arguments.
-                res += w*G*P # Update of the sum
-            end
-            res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
-
-            taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
-        end
-
+        taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
     end
 
     return taba
@@ -143,10 +123,10 @@ function setup_legendre_integration(K_u::Int64,qself::Float64,xmax::Float64,PARA
     tabuGLquad,tabwGLquad,tabINVcGLquad,tabPGLquad = tabGLquad(K_u)
 
     # compute the function G(u)
-    tabG = compute_tabG(tabuGLquad,qself,xmax,PARALLEL)
+    tabG = compute_tabG(tabuGLquad,qself,xmax)
 
     # compute the coefficients for integration
-    taba = compute_aLegendre(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad,PARALLEL)
+    taba = compute_aLegendre(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad)
 
     # set up the table for integration
     struct_tabLeg = initialize_struct_tabLeg(K_u,PARALLEL)
