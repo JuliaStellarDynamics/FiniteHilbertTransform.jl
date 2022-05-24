@@ -6,4 +6,5 @@ examples/run_isochrone.jl
 examples/data/data_chebyshev*
 examples/data/data_legendre*
 
-examples/figures/.DS_Store
+# very annoying OSX hidden files
+*.DS_Store
