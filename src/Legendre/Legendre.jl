@@ -65,7 +65,7 @@ function get_tabLeg!(omg::Complex{Float64},
                      K_u::Int64,
                      struct_tabLeg::struct_tabLeg_type)
 
-    if (imag(omg) >= 0.0) # Searching for unstable modes, i.e. Im[w] > 0
+    if (imag(omg) > 0.0) # Searching for unstable modes, i.e. Im[w] > 0
         #println("Using UNSTABLE Legendre integration.")
         tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
 
@@ -73,7 +73,7 @@ function get_tabLeg!(omg::Complex{Float64},
         #println("Using NEUTRAL Legendre integration.")
         tabLeg!_NEUTRAL(omg,K_u,struct_tabLeg)
 
-    elseif (imag(omg) <= 0.0) # Searching for damped modes, i.e. Im[w] < 0
+    else # Searching for damped modes, i.e. Im[w] < 0
         #println("Using DAMPED Legendre integration.")
         tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
 
