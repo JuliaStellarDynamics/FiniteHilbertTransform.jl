@@ -1,18 +1,18 @@
 
 
 
-
+"""
+tabLeg!_DAMPED
+ Function to fill in all the Legendre arrays
+ for a DAMPED mode, i.e. Im[w] < 0.0
+"""
 function tabLeg!_DAMPED(omg::Complex{Float64},
                         K_u::Int64,
                         struct_tabLeg::struct_tabLeg_type)
-    #=tabLeg!_DAMPED
-     Function to fill in all the Legendre arrays
-     for a DAMPED mode, i.e. Im[w] = 0.0
-    =#
+
 
     tabDLeg = struct_tabLeg.tabDLeg # Name of the container for D_k(w)
     ##########
-    romg = real(omg) # Keeping only the real part of omg
     ##########
     # Computing Q_k(w)
     #####
@@ -26,7 +26,11 @@ function tabLeg!_DAMPED(omg::Complex{Float64},
     ##########
     # Computing P_k(w), if needed
     #####
-    val_H = Heaviside(romg) # Computing the value of H[-1,1,Re[w]]. ATTENTION, the argument must be real.
+
+    # compute the value of H[-1,1,Re[w]].
+    # ATTENTION, the argument must be real.
+    val_H = Heaviside(real(omg))
+
     #####
     if (val_H == 0.0) # We are outside of the interval [-1,1], so that we do not need to compute P_k(w)
         ##########

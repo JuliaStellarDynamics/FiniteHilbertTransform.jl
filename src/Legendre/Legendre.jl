@@ -57,32 +57,26 @@ end
 
 """
 fill struct_tabLeg at a given complex frequency for the integration being considered
+
+integration style selection is automatic: if you want to specify a type, call out to the specific integration method.
+
 """
 function get_tabLeg!(omg::Complex{Float64},
                      K_u::Int64,
-                     struct_tabLeg::struct_tabLeg_type,
-                     LINEAR::String="damped")
-    #=
-     Choosing the function tabLeg! depending
-     on the type of linear response considered
-    =#
+                     struct_tabLeg::struct_tabLeg_type)
 
-    if (LINEAR == "unstable") # Searching for unstable modes, i.e. Im[w] > 0
+    if (imag(omg) >= 0.0) # Searching for unstable modes, i.e. Im[w] > 0
         #println("Using UNSTABLE Legendre integration.")
         tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
 
-    elseif (LINEAR == "neutral") # Searching for neutral modes, i.e. Im[w] = 0
+    elseif (imag(omg) == 0.0) # Searching for neutral modes, i.e. Im[w] = 0
         #println("Using NEUTRAL Legendre integration.")
         tabLeg!_NEUTRAL(omg,K_u,struct_tabLeg)
 
-    elseif (LINEAR == "damped") # Searching for damped modes, i.e. Im[w] < 0
+    elseif (imag(omg) <= 0.0) # Searching for damped modes, i.e. Im[w] < 0
         #println("Using DAMPED Legendre integration.")
         tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
 
-    else
-        # By defaut, we do not make any analytical continuation and search for unstable modes
-        tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg) # ATTENTION, use `const' to avoid allocations
-    end
 end
 
 

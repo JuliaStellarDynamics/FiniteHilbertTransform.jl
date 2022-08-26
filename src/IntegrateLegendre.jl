@@ -25,17 +25,17 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
 
     taba = zeros(Float64,K_u)
 
-    Threads.@threads for k=0:(K_u-1) # Loop over the Legendre functions
+    Threads.@threads for k=1:(K_u) # Loop over the Legendre functions
         res = 0.0 # Initialisation of the result
         for i=1:K_u # Loop over the G-L nodes
             w = tabwGLquad[i] # Current weight
             G = tabG[i] # Current value of G[u_i]
-            P = tabPGLquad[k+1,i] # Current value of P_k. ATTENTION, to the shift of the array. ATTENTION, to the order of the arguments.
+            P = tabPGLquad[k,i] # Current value of P_k. ATTENTION, to the shift of the array. ATTENTION, to the order of the arguments.
             res += w*G*P # Update of the sum
         end
-        res *= tabINVcGLquad[k+1] # Multiplying by the prefactor. ATTENTION, to the shift of the array
+        res *= tabINVcGLquad[k] # Multiplying by the prefactor. ATTENTION, to the shift of the array
 
-        taba[k+1] = res # Filling in taba. ATTENTION, to the shift of the array
+        taba[k] = res # Filling in taba. ATTENTION, to the shift of the array
     end
 
     return taba
@@ -43,34 +43,35 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
 end
 
 
-"""get_Legendre_IminusXi
+"""GetLegendreIminusXiPlasma
 
 perform the loop calculation a_k*D_k, after computing D_k
 
+Function that computes the values of I-Xi(omg) for a given complex frequency
+
 """
-function get_Legendre_IminusXi(omg::Complex{Float64},
-                      taba::Vector{Float64},
-                      xmax::Float64,
-                      struct_tabLeg::struct_tabLeg_type,
-                      LINEAR::String="damped")
-    #=
-     Function that computes the values of I-Xi(omg)
-     for a given complex frequency
-    =#
+function GetLegendreIminusXiPlasma(omg::Complex{Float64},
+                                   taba::Vector{Float64},
+                                   xmax::Float64,
+                                   struct_tabLeg::struct_tabLeg_type,
+                                   LINEAR::String="damped")
+
 
     # Rescale the COMPLEX frequency
     K_u = size(taba,1)
 
     varpi = omg/xmax
 
-    # Computing the Hilbert-transformed Legendre functions
+    # compute the Hilbert-transformed Legendre functions
     get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR)
-    #tabDLeg = struct_tabLeg.tabDLeg # Name of the array where the D_k(w) are stored
-    #####
 
     xi = 0.0 + 0.0*im # Initialise xi
-    for k=0:(K_u-1) # Loop over the Legendre functions
-        xi += taba[k+1]*struct_tabLeg.tabDLeg[k+1] # Adding a contribution. ATTENTION, to the shift of the array.
+
+    # loop over the Legendre functions
+    for k=1:(K_u)
+
+        # add the contribution
+        xi += taba[k]*struct_tabLeg.tabDLeg[k]
     end
 
     IminusXi = 1.0 - xi # Compute 1.0 - xi
@@ -101,7 +102,7 @@ function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
         #####
         thr = Threads.threadid() # ID of the current thread
 
-        val = get_Legendre_IminusXi(tabomega[iomega],taba,xmax,struct_tabLeg[thr],LINEAR) #
+        val = GetLegendreIminusXiPlasma(tabomega[iomega],taba,xmax,struct_tabLeg[thr],LINEAR) #
 
         #Computing I-Xi(omg) using the parallel containers
 
@@ -159,13 +160,13 @@ function test_ninepointsL(taba::Vector{Float64},
     lowercen   =  0.0 - 1.5im
     lowerright =  1.5 - 1.5im
 
-    println(round(get_Legendre_IminusXi(upperleft,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(uppercen,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(upperright,taba,xmax,struct_tabLeg,"unstable"),digits=digits))
-    println(round(get_Legendre_IminusXi(midleft,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(midcen,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(midright,taba,xmax,struct_tabLeg,"neutral"),digits=digits))
-    println(round(get_Legendre_IminusXi(lowerleft,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(lowercen,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
-            round(get_Legendre_IminusXi(lowerright,taba,xmax,struct_tabLeg,"damped"),digits=digits))
+    println(round(GetLegendreIminusXiPlasma(upperleft,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(uppercen,taba,xmax,struct_tabLeg,"unstable"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(upperright,taba,xmax,struct_tabLeg,"unstable"),digits=digits))
+    println(round(GetLegendreIminusXiPlasma(midleft,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(midcen,taba,xmax,struct_tabLeg,"neutral"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(midright,taba,xmax,struct_tabLeg,"neutral"),digits=digits))
+    println(round(GetLegendreIminusXiPlasma(lowerleft,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(lowercen,taba,xmax,struct_tabLeg,"damped"),digits=digits)," || ",
+            round(GetLegendreIminusXiPlasma(lowerright,taba,xmax,struct_tabLeg,"damped"),digits=digits))
 end

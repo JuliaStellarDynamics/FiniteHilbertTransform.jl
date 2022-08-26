@@ -1,7 +1,7 @@
 module PerturbPlasma
 
 # bring in the plasma model
-include("PlasmaModel.jl")
+#include("PlasmaModel.jl")
 
 # bring in the generic integration tools
 include("Integrate.jl")

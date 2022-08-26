@@ -44,8 +44,8 @@ plt.savefig('figures/plasma_demo.png')
 
 
 # open the file
-f = h5py.File('data/data_chebyshev_Plasma_Ku_200_qSELF_0.5_xmax_20.0.hf5','r')
-#f = h5py.File('data/data_legendre_Plasma_Ku_200_qSELF_0.5_xmax_20.0.hf5','r')
+#f = h5py.File('data/data_chebyshev_Plasma_Ku_200_qSELF_0.5_xmax_20.0.hf5','r')
+f = h5py.File('data/data_legendre_Plasma_Ku_200_qSELF_0.5_xmax_20.0.hf5','r')
 print(list(f.keys()))
 
 epsilon = np.abs(np.array(f['tabIminusXi_real']).reshape([801,300])+1j*np.array(f['tabIminusXi_imag']).reshape([801,300]))

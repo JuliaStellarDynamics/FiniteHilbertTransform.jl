@@ -3,11 +3,15 @@ An example call:
 
 julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 --K_u 200 --nOmega 801 --nEta 300 --xmax 20
 
+julia --threads 4 run_plasma.jl --Cmode legendre --linear damped --parallel 1 --K_u 200 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
+
+julia --threads 4 run_plasma.jl --Cmode legendre --linear unstable --parallel 1 --K_u 200 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin 0.0 --Etamax 3.0
+
 =#
 
 
 include("../src/Arguments.jl")
-include("../src/PlasmaModel.jl")
+include("PlasmaModel.jl")
 include("../src/Integrate.jl")
 include("../src/IntegrateChebyshev.jl")
 include("../src/IntegrateLegendre.jl")
@@ -73,14 +77,14 @@ function main()
     if parsed_args["Cmode"] == "chebyshev"
         taba = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
         #test_ninepoints(taba)
-        println(taba)
+        #println(taba)
         @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,LINEAR)
     end
 
     if parsed_args["Cmode"] == "legendre"
         taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
         #test_ninepoints()
-        println(taba)
+        #println(taba)
         @time tabIminusXi = compute_tabIminusXi(tabomega,taba,xmax,struct_tabLeg,LINEAR)
     end
 
