@@ -76,7 +76,7 @@ function get_tabLeg!(omg::Complex{Float64},
     else # Searching for damped modes, i.e. Im[w] < 0
         #println("Using DAMPED Legendre integration.")
         tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
-
+    end
 end
 
 
