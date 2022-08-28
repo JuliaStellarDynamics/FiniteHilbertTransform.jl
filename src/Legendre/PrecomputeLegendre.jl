@@ -6,14 +6,15 @@ Precompute several items for Legendre integration.
 
 
 """
-wrapper function to generate the
+Function to initialise the nodes (u) and weights (u)
+of the Gauss-Legendre quadrature
 """
 function tabuwGLquad(K_u::Int64)
-    #=
-     Function to initialise the nodes (u) and weights (u)
-     of the Gauss-Legendre quadrature
-    =#
-    tabuGLquad, tabwGLquad = gausslegendre(K_u) # Computing the nodes (u) and weights (w) of the G-L quadrature
+
+    # pull from FastGaussQuadrature
+    # compute the nodes (u) and weights (w) of the G-L quadrature
+    tabuGLquad, tabwGLquad = gausslegendre(K_u)
+
     return tabuGLquad,tabwGLquad
 end
 
@@ -25,9 +26,14 @@ ATTENTION, it corresponds to the INVERSE.
 function tabINVcGLquad(K_u::Int64)
 
     tabINVcGLquad = zeros(Float64,K_u)
-    for k=0:(K_u-1) # Loop over the Legendre index
-        tabINVcGLquad[k+1] = (2.0*k+1.0)/(2.0) # Filling in the value. ATTENTION, to the shift in the array index
+
+    # loop over the Legendre index
+    for k=0:(K_u-1)
+
+        # filling in the value. ATTENTION, to the shift in the array index
+        tabINVcGLquad[k+1] = (2.0*k+1.0)/(2.0)
     end
+    
     return tabINVcGLquad
 end
 

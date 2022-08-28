@@ -1,4 +1,4 @@
-#=
+"""Legendre.jl
  Functions that compute the dispersion function D_k(w)
 
  These are defined as
@@ -13,7 +13,7 @@
  Here, the three different cases correspond
  respectively to unstable; neutral; damped modes
 
-=#
+"""
 
 """struct_tabLeg_type
 Define a structure that contains all the tables needed for the Legendre calculations
@@ -39,8 +39,7 @@ end
 parallelise initialisation of struct_tabLeg_type
 """
 function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
-    #=
-    =#
+
     if (PARALLEL)
         # For parallel runs, we also create containers for each thread
         # Basis container for every threads
@@ -51,7 +50,9 @@ function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
         # Create one container for non-parallel runs
         struct_tabLeg = struct_tabLeg_create(K_u)
     end
+
     return struct_tabLeg
+
 end
 
 
@@ -63,19 +64,33 @@ integration style selection is automatic: if you want to specify a type, call ou
 """
 function get_tabLeg!(omg::Complex{Float64},
                      K_u::Int64,
-                     struct_tabLeg::struct_tabLeg_type)
+                     struct_tabLeg::struct_tabLeg_type;
+                     verbose::Int64=0)
 
-    if (imag(omg) > 0.0) # Searching for unstable modes, i.e. Im[w] > 0
-        #println("Using UNSTABLE Legendre integration.")
-        tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
+    # check the imaginary sign. if negative, use damped integration
+    if (imag(omg) < 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using DAMPED Legendre integration.")
+        end
 
-    elseif (imag(omg) == 0.0) # Searching for neutral modes, i.e. Im[w] = 0
-        #println("Using NEUTRAL Legendre integration.")
+        tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
+
+    # if exactly zero, use neutral mode calculation
+    elseif (imag(omg) == 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using NEUTRAL Legendre integration.")
+        end
+
         tabLeg!_NEUTRAL(omg,K_u,struct_tabLeg)
 
-    else # Searching for damped modes, i.e. Im[w] < 0
-        #println("Using DAMPED Legendre integration.")
-        tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
+    # by default, use unstable integration
+    else
+
+        if verbose > 2
+            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using UNSTABLE Legendre integration.")
+        end
+
+        tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
     end
 end
 

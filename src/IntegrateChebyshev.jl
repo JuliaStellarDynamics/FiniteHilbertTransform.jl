@@ -45,8 +45,7 @@ compute ``({\\bf I}-{\\bf \\Xi}(\\omega))`` for a single frequency.
 """
 function get_Chebyshev_IminusXi(omg::Complex{Float64},
                                 taba::Vector{Float64},
-                                xmax::Float64,
-                                LINEAR::String)
+                                xmax::Float64)
     #=
      Function that computes the values of I-Xi(omg)
      for a given complex frequency
@@ -54,7 +53,7 @@ function get_Chebyshev_IminusXi(omg::Complex{Float64},
     #####
     varpi = omg/xmax # Rescaled COMPLEX frequency
     #####
-    Xi = get_Chebyshev_Xi(varpi,taba,LINEAR)
+    Xi = get_Chebyshev_Xi(varpi,taba)
     #####
     IminusXi = 1.0 - Xi # Computing the value of 1.0 - xi
     #####
@@ -90,32 +89,24 @@ end
 
 
 
-"""compute_tabIminusXi
+"""ComputeIminusXi
 
 compute ``({\\bf I}-{\\bf \\Xi}(\\omega))`` for all considered frequencies.
 """
-function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
+function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
                              taba::Vector{Float64},
-                             xmax::Float64,
-                             LINEAR::String,
-                             PARALLEL::Bool=true)
+                             xmax::Float64)
 
     K_u = size(taba,1)
     nomega = size(tabomega,1)
     tabIminusXi = zeros(Complex{Float64},nomega) # Table to store the value of det[I-Xi].
 
-    if (PARALLEL)
-        Threads.@threads for iomega=1:nomega # Loop over all the considered COMPLEX frequencies
+    Threads.@threads for iomega=1:nomega # Loop over all the considered COMPLEX frequencies
 
-            thr = Threads.threadid() # ID of the current thread
+        thr = Threads.threadid() # ID of the current thread
 
-            tabIminusXi[iomega] = get_Chebyshev_IminusXi(tabomega[iomega],taba,xmax,LINEAR) #
+        tabIminusXi[iomega] = get_Chebyshev_IminusXi(tabomega[iomega],taba,xmax) #
 
-        end
-    else
-        for iomega=1:nomega
-            tabIminusXi[iomega] = get_Chebyshev_IminusXi(tabomega[iomega],taba,xmax,LINEAR)
-        end
     end
 
     return tabIminusXi
@@ -137,7 +128,7 @@ function setup_chebyshev_integration(K_u::Int64,
     tabuCheby = get_tabuCheby(K_u)
 
     # compute the function G(u)
-    tabG = compute_tabG(tabuCheby,qself,xmax,PARALLEL)
+    tabG = CGFuncPlasma(tabuCheby,qself,xmax)
 
     # compute the coefficients for integration
     taba = compute_aChebyshev(tabG,PARALLEL)

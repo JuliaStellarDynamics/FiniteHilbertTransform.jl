@@ -9,17 +9,17 @@ include("Legendre/PrecomputeLegendre.jl")
 include("Legendre/Legendre.jl")
 
 
-"""compute_aLegendre
+"""ComputeALegendre
 
 for all values of u:
 compute a_k(u) by looping over Legendre weights w(u), P_k(u) values, and G(u) values.
 
 parallel or non-parallel options
 """
-function compute_aLegendre(tabwGLquad::Vector{Float64},
-                           tabG::Vector{Float64},
-                           tabPGLquad::Matrix{Float64},
-                           tabINVcGLquad::Vector{Float64})
+function ComputeALegendre(tabwGLquad::Vector{Float64},
+                          tabG::Vector{Float64},
+                          tabPGLquad::Matrix{Float64},
+                          tabINVcGLquad::Vector{Float64})
 
     K_u = size(tabwGLquad, 1)
 
@@ -43,70 +43,36 @@ function compute_aLegendre(tabwGLquad::Vector{Float64},
 end
 
 
-"""GetLegendreIminusXiPlasma
 
-perform the loop calculation a_k*D_k, after computing D_k
-
-Function that computes the values of I-Xi(omg) for a given complex frequency
-
-"""
-function GetLegendreIminusXiPlasma(omg::Complex{Float64},
-                                   taba::Vector{Float64},
-                                   xmax::Float64,
-                                   struct_tabLeg::struct_tabLeg_type,
-                                   LINEAR::String="damped")
-
-
-    # Rescale the COMPLEX frequency
-    K_u = size(taba,1)
-
-    varpi = omg/xmax
-
-    # compute the Hilbert-transformed Legendre functions
-    get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR)
-
-    xi = 0.0 + 0.0*im # Initialise xi
-
-    # loop over the Legendre functions
-    for k=1:(K_u)
-
-        # add the contribution
-        xi += taba[k]*struct_tabLeg.tabDLeg[k]
-    end
-
-    IminusXi = 1.0 - xi # Compute 1.0 - xi
-    return IminusXi # Output
-end
-
-
-"""compute_tabIminusXi
+"""ComputeIminusXi
 
 wrapper to parallelise calculations of I-Xi
 
 """
-function compute_tabIminusXi(tabomega::Vector{Complex{Float64}},
-                             taba::Vector{Float64},
-                             xmax::Float64,
-                             struct_tabLeg::Vector{struct_tabLeg_type},
-                             LINEAR::String)
-    #=
-     Function that computes I-Xi(omg)
-     for all the considered frequencies
-     ATTENTION, the parallelism is hard-coded
-    =#
-    K_u = size(taba,1)
+function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
+                         taba::Vector{Float64},
+                         xmax::Float64,
+                         struct_tabLeg::Vector{struct_tabLeg_type})
+
+    # get constants
+    K_u    = size(taba,1)
     nomega = size(tabomega,1)
-    tabIminusXi = zeros(Complex{Float64},nomega) # Table to store the value of det[I-Xi].
 
-    Threads.@threads for iomega=1:nomega # Loop over all the considered COMPLEX frequencies
-        #####
-        thr = Threads.threadid() # ID of the current thread
+    # define a table to store the value of det[I-Xi].
+    tabIminusXi = zeros(Complex{Float64},nomega)
 
-        val = GetLegendreIminusXiPlasma(tabomega[iomega],taba,xmax,struct_tabLeg[thr],LINEAR) #
+    # loop over all the considered COMPLEX frequencies
+    Threads.@threads for iomega=1:nomega
 
-        #Computing I-Xi(omg) using the parallel containers
+        # ID of the current thread
+        thr = Threads.threadid()
 
-        tabIminusXi[iomega] = val # Filling in tabIminusXi
+        # compute I-Xi(omg) using the parallel containers
+        val = GetLegendreIminusXiPlasma(tabomega[iomega],taba,xmax,struct_tabLeg[thr])
+
+        # fill in tabIminusXi
+        tabIminusXi[iomega] = val
+
     end
 
     return tabIminusXi
@@ -124,10 +90,10 @@ function setup_legendre_integration(K_u::Int64,qself::Float64,xmax::Float64,PARA
     tabuGLquad,tabwGLquad,tabINVcGLquad,tabPGLquad = tabGLquad(K_u)
 
     # compute the function G(u)
-    tabG = compute_tabG(tabuGLquad,qself,xmax)
+    tabG = CGFuncPlasma(tabuGLquad,qself,xmax)
 
     # compute the coefficients for integration
-    taba = compute_aLegendre(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad)
+    taba = ComputeALegendre(tabwGLquad,tabG,tabPGLquad,tabINVcGLquad)
 
     # set up the table for integration
     struct_tabLeg = initialize_struct_tabLeg(K_u,PARALLEL)

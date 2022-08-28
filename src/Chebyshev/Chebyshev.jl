@@ -3,26 +3,33 @@
 
 function get_Chebyshev_Xi(omg::Complex{Float64},
                           taba::Vector{Float64},
-                          LINEAR::String="damped")
+                          LINEAR::String="damped";
+                          verbose::Int64=0)
     #=
      Defining the correct computation function
     =#
 
-    if (LINEAR == "unstable") # Searching for unstable modes, i.e. Im[w] > 0
-        #println("Using UNSTABLE Legendre integration.")
-        get_Xi_UNSTABLE(omg,taba)
+    if (imag(omg) < 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using DAMPED Chebyshev integration.")
+        end
 
-    elseif (LINEAR == "neutral") # Searching for neutral modes, i.e. Im[w] = 0
-        #println("Using NEUTRAL Legendre integration.")
-        get_Xi_NEUTRAL(omg,taba)
-
-    elseif (LINEAR == "damped") # Searching for damped modes, i.e. Im[w] < 0
-        #println("Using DAMPED Legendre integration.")
         get_Xi_DAMPED(omg,taba)
 
+    elseif (imag(omg) == 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using NEUTRAL Chebyshev integration.")
+        end
+
+        get_Xi_NEUTRAL(omg,taba)
+
     else
-        # By default, we do not make any analytical continuation and search for unstable modes
-        get_Xi_UNSTABLE(omg,taba) # ATTENTION, use `const' to avoid allocations
+        # by default use unstable integration
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using UNSTABLE Chebyshev integration.")
+        end
+
+        get_Xi_UNSTABLE(omg,taba)
     end
 end
 
