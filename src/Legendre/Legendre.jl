@@ -15,40 +15,58 @@
 
 """
 
-"""struct_tabLeg_type
-Define a structure that contains all the tables needed for the Legendre calculations
 """
-struct struct_tabLeg_type
+    structLegendreFHTtype
 
+"""
+struct structLegendreFHTtype
+
+    name::String         # FHT name (default Legendre)
+    Ku::Int64           # number of sample points
+
+    tabu::Array{Float64,1}     # u values (sampling points)
+    tabw::Array{Float64,1}     # w values (weights at sampling points)
+    tabP::Matrix{Float64}     # P_k(u) values (Ku x Ku)
+    tabc::Vector{Float64}     # prefactor at each sampling point
+
+    # arrays for the continuation
     tabPLeg::Array{Complex{Float64},1} # Static container for tabPLeg
     tabQLeg::Array{Complex{Float64},1} # Static container for tabQLeg
     tabDLeg::Array{Complex{Float64},1} # Static container for tabDLeg
+
 end
 
-"""struct_tabLeg_create
-initialiser for struct_tabLeg_type
+
 """
-function struct_tabLeg_create(K_u::Int64)
-    # Function that creates a struct_tabLeg
-    return struct_tabLeg_type(zeros(Complex{Float64},K_u), # Table for tabPLeg
-                              zeros(Complex{Float64},K_u), # Table for tabQLeg
-                              zeros(Complex{Float64},K_u)) # Table for tabDLeg
+    LegendreFHTcreate(Ku[name, dimension, lmax, nmax, G, rb])
+
+Create a structLegendreFHTtype structure
+
+"""
+function LegendreFHTcreate(Ku::Int64;name::String="Legendre")
+
+    tabu,tabw,tabc,tabP = tabGLquad(Ku)
+
+    return structLegendreFHTtype(name,Ku,tabu,tabw,tabP,tabc,zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
+
 end
+
+
 
 """initialize_struct_tabLeg
 parallelise initialisation of struct_tabLeg_type
 """
-function initialize_struct_tabLeg(K_u::Int64,PARALLEL::Bool)
+function initialize_struct_tabLeg(Ku::Int64,PARALLEL::Bool)
 
     if (PARALLEL)
         # For parallel runs, we also create containers for each thread
         # Basis container for every threads
         nb_threads = Threads.nthreads()
-        struct_tabLeg = [struct_tabLeg_create(K_u) for thr=1:nb_threads]
+        struct_tabLeg = [struct_tabLeg_create(Ku) for thr=1:nb_threads]
     else
         # Create a default struct_tabLeg used in serial runs
         # Create one container for non-parallel runs
-        struct_tabLeg = struct_tabLeg_create(K_u)
+        struct_tabLeg = struct_tabLeg_create(Ku)
     end
 
     return struct_tabLeg
@@ -63,8 +81,7 @@ integration style selection is automatic: if you want to specify a type, call ou
 
 """
 function get_tabLeg!(omg::Complex{Float64},
-                     K_u::Int64,
-                     struct_tabLeg::struct_tabLeg_type;
+                     struct_tabLeg::structLegendreFHTtype;
                      verbose::Int64=0)
 
     # check the imaginary sign. if negative, use damped integration
@@ -73,7 +90,7 @@ function get_tabLeg!(omg::Complex{Float64},
             println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using DAMPED Legendre integration.")
         end
 
-        tabLeg!_DAMPED(omg,K_u,struct_tabLeg)
+        tabLeg!_DAMPED(omg,struct_tabLeg)
 
     # if exactly zero, use neutral mode calculation
     elseif (imag(omg) == 0.0)
@@ -81,7 +98,7 @@ function get_tabLeg!(omg::Complex{Float64},
             println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using NEUTRAL Legendre integration.")
         end
 
-        tabLeg!_NEUTRAL(omg,K_u,struct_tabLeg)
+        tabLeg!_NEUTRAL(omg,struct_tabLeg)
 
     # by default, use unstable integration
     else
@@ -90,7 +107,7 @@ function get_tabLeg!(omg::Complex{Float64},
             println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using UNSTABLE Legendre integration.")
         end
 
-        tabLeg!_UNSTABLE(omg,K_u,struct_tabLeg)
+        tabLeg!_UNSTABLE(omg,struct_tabLeg)
     end
 end
 
@@ -147,7 +164,7 @@ function tabQLeg!(omg::Complex{Float64},
      https://www.uni-ulm.de/fileadmin/website_uni_ulm/mawi.inst.070/funken/bachelorarbeiten/bachelorthesis_pfh.pdf
     =#
 
-    K_u = size(tabQLeg,1)
+    Ku = size(tabQLeg,1)
 
     logINVTOL = log(10^(14)) # Logarithm of the inverse of the tolerance of the algorithm
 
@@ -155,29 +172,29 @@ function tabQLeg!(omg::Complex{Float64},
     u2, v2 = u^(2), v^(2) # Squared quantities
 
     # use an ellipse to decide if we are going up or down in the recursion
-    b = min(1.0,4.5/((K_u+1.0)^(1.17))) # Value of ellise parameter
+    b = min(1.0,4.5/((Ku+1.0)^(1.17))) # Value of ellise parameter
     b2 = b^(2)                          # Squared quantity
     a2 = 1.0+b2                         # Second parameter of the ellipse
 
     # Testing whether or not we are close to the axis [-1,1]
     if ((u2/a2) + (v2/b2) <= 1.0)       # Within the ellipse
-        tabLeg_UP!(omg,val_0,val_1,K_u,tabQLeg) # If we are sufficiently close to [-1,1], we use the forward recurrence
+        tabLeg_UP!(omg,val_0,val_1,Ku,tabQLeg) # If we are sufficiently close to [-1,1], we use the forward recurrence
     else                                # Outside of the ellipse
         # Determining the size of the warm-up region
         z2 = abs(u) + abs(v)*im
         ctmp0 = sqrt(z2*z2 - 1.0)
         tmp00 = 2.0*log(abs(z2 + ctmp0))
 
-        K_c = convert(Int64,K_u + ceil(logINVTOL/tmp00)) # Index at which the backward warm-up is started
+        K_c = convert(Int64,Ku + ceil(logINVTOL/tmp00)) # Index at which the backward warm-up is started
 
-        tabLeg_BACK!(omg,val_0,K_c,K_u,tabQLeg) # If we are sufficiently far away from [-1,1], we use the backward recurrence
+        tabLeg_BACK!(omg,val_0,K_c,Ku,tabQLeg) # If we are sufficiently far away from [-1,1], we use the backward recurrence
     end
 end
 
 function tabPLeg!(omg::Complex{Float64},
                   val_0::Complex{Float64},
                   val_1::Complex{Float64},
-                  K_u::Int64,
+                  Ku::Int64,
                   tabPLeg::Array{Complex{Float64},1})
     #=tabPLeg
      Function that pre-computes the Legendre functions, P_k(w),
@@ -192,13 +209,13 @@ function tabPLeg!(omg::Complex{Float64},
     =#
     #####
     # For P_k(w), we always use the UPWARD recurrence.
-    tabLeg_UP!(omg,val_0,val_1,K_u,tabPLeg)
+    tabLeg_UP!(omg,val_0,val_1,Ku,tabPLeg)
 end
 
 function tabLeg_UP!(omg::Complex{Float64},
                     val_0::Complex{Float64},
                     val_1::Complex{Float64},
-                    K_u::Int64,
+                    Ku::Int64,
                     tabLeg::Array{Complex{Float64},1})
     #=
      Function to compute Legendre functions
@@ -219,7 +236,7 @@ function tabLeg_UP!(omg::Complex{Float64},
     #####
     v0, v1 = val_0, val_1 # Initialising the temporary variables used in the recurrence
     #####
-    for k=2:(K_u-1) # Loop over the index 2 <= k
+    for k=2:(Ku-1) # Loop over the index 2 <= k
         v = ((2.0*k-1.0)*omg*v1 - (k-1.0)*v0)/(k) # Bonnet's recc. relation to get D_k(omg)
         #####
         tabLeg[k+1] = v # Filling in the value of D_k(omg). ATTENTION, to the shift in the array index
@@ -232,7 +249,7 @@ end
 function tabLeg_BACK!(omg::Complex{Float64},
                       val_0::Complex{Float64},
                       K_c::Int64,
-                      K_u::Int64,
+                      Ku::Int64,
                       tabLeg::Array{Complex{Float64},1})
     #=tabLeg_BACK!
      Function to compute Legendre functions
@@ -255,13 +272,13 @@ function tabLeg_BACK!(omg::Complex{Float64},
     v1 = 0.0
 
     # Warm-up phase
-    for k=K_c:-1:K_u # ATTENTION, the step is `-1'.
+    for k=K_c:-1:Ku # ATTENTION, the step is `-1'.
         v = ((2.0*k+3.0)*omg*v0 - (k+2.0)*v1)/(k+1.0) # Computing D_(k)[omg]
         v0, v1 = v, v0 # Shifting the temporary variables
     end
 
     # Starting to store the values of D_(k)[omg]
-    for k=(K_u-1):-1:0 # ATTENTION, the step is `-1'.
+    for k=(Ku-1):-1:0 # ATTENTION, the step is `-1'.
         v = ((2.0*k+3.0)*omg*v0 - (k+2.0)*v1)/(k+1.0) # Computing D_(k)[omg]
 
         tabLeg[k+1] = v # Filling in the value of D_(k)[omg]. ATTENTION, to the shift in the array index
@@ -271,7 +288,7 @@ function tabLeg_BACK!(omg::Complex{Float64},
 
     pref = val_0/tabLeg[0+1] # Prefactor by which all the values have to be rescaled, so that it is equal to val_0 for k=0. ATTENTION, to the shift of the array.
 
-    for k=0:(K_u-1) # Rescaling all the computed values
+    for k=0:(Ku-1) # Rescaling all the computed values
         tabLeg[k+1] *= pref # Performing the rescaling. ATTENTION, to the shift in the array index
     end
 end

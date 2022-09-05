@@ -3,8 +3,7 @@
 # for an UNSTABLE mode, i.e. Im[w] > 0.0
 ##################################################
 function tabLeg!_UNSTABLE(omg::Complex{Float64},
-                          K_u::Int64,
-                          struct_tabLeg::struct_tabLeg_type)
+                          struct_tabLeg::structLegendreFHTtype)
     ##########
     tabDLeg = struct_tabLeg.tabDLeg # Name of the container for D_k(w)
     ##########
@@ -20,7 +19,7 @@ function tabLeg!_UNSTABLE(omg::Complex{Float64},
     ##########
     # Computing D_k(w)
     #####
-    for k=0:(K_u-1) # Loop over the Legendre indices
+    for k=0:(struct_tabLeg.Ku-1) # Loop over the Legendre indices
         tabDLeg[k+1] = tabQLeg[k+1] # Filling in tabDLeg. ATTENTION, to the shift of the arrays
     end
 end

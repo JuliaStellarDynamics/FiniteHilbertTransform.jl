@@ -1,21 +1,19 @@
-"""
-    compute_tabG(uNodes, Gfun)
+# perform discrete sine transform in Gauss-Chebyshev quadrature
+using FFTW
 
-Compute the G function values on the u nodes.
-"""
-function compute_tabG(uNodes::Vector{Float64},Gfun::Function)
+# access to the nodes and weights of the Gauss-Legendre quadrature
+using FastGaussQuadrature
 
-    K_u = size(uNodes,1)        # Nodes number
-    tabG = zeros(Float64,K_u)   # Values array
+# Chebyshev:
+# Bring in the prefactors
+include("Chebyshev/PrecomputeChebyshev.jl")
 
-    Threads.@threads for i=1:K_u # Loop over the nodes
+# Bring in the integration tools
+include("Chebyshev/Chebyshev.jl")
 
-        # Current node position
-        u_i = uNodes[i]
+# Gauss-Legendre:
+# Bring in the prefactors
+include("Legendre/PrecomputeLegendre.jl")
 
-        # Compute the value of G[u_i]
-        tabG[i] = Gfun(u_i)
-    end
-
-    return tabG
-end
+# Bring in the integration tools
+include("Legendre/Legendre.jl")

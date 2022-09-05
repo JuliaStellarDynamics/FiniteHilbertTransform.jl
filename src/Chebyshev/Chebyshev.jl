@@ -1,6 +1,47 @@
 
 
 
+
+
+"""
+    structChebyshevFHTtype
+
+"""
+struct structChebyshevFHTtype
+
+    name::String         # FHT name (default Chebyshev)
+    Ku::Int64           # number of sample points
+
+    tabu::Array{Float64,1}     # u values (sampling points)
+    tabw::Array{Float64,1}     # w values (weights at sampling points)
+    tabP::Matrix{Float64}     # P_k(u) values (Ku x Ku)
+    tabc::Vector{Float64}     # prefactor at each sampling point
+
+    # arrays for the continuation
+    tabPLeg::Array{Complex{Float64},1} # Static container for tabPLeg
+    tabQLeg::Array{Complex{Float64},1} # Static container for tabQLeg
+    tabDLeg::Array{Complex{Float64},1} # Static container for tabDLeg
+
+end
+
+
+"""
+    ChebyshevFHTcreate(Ku[name, dimension, lmax, nmax, G, rb])
+
+Create a structChebyshevFHTtype structure
+
+"""
+function ChebyshevFHTcreate(Ku::Int64;name::String="Chebyshev")
+
+    tabu,tabw,tabc,tabP = tabGLquad(Ku)
+
+    return structChebyshevFHTtype(name,Ku,tabu,tabw,tabP,tabc,zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
+
+end
+
+
+
+
 function get_Chebyshev_Xi(omg::Complex{Float64},
                           taba::Vector{Float64},
                           LINEAR::String="damped";
@@ -31,6 +72,39 @@ function get_Chebyshev_Xi(omg::Complex{Float64},
 
         get_Xi_UNSTABLE(omg,taba)
     end
+end
+
+
+function getTu(Ku::Int64,tabuCquad::Vector{Float64})
+
+    tabPGLquad = zeros(Float64,Ku,Ku)
+
+    for i=1:K_u # Loop over the nodes
+
+        u = tabuCquad[i] # Current value of the node
+
+        # initialise T_0(u)
+        v0 = 1.0
+
+        # initialise T_1(u)
+        v1 = u
+
+        tabPCquad[1,i] = v0 # Filling in the value of T_0(u). ATTENTION, to the shift in the array index.
+        tabPCquad[2,i] = v1 # Filling in the value of T_1(u). ATTENTION, to the shift in the array index.
+
+        for k=2:(Ku-1) # Loop over the index 2 <= k
+
+            v = 2u*v1 - v0 # Bonnet's recc. relation to get P_k(u)
+
+            # Filling in the value P_k(u). ATTENTION, to the shift in the array index for k
+            tabPCquad[k+1,i] = v
+
+            # Shifting the temporary variables
+            v0, v1 = v1, v
+        end
+    end
+
+    return tabPCquad
 end
 
 

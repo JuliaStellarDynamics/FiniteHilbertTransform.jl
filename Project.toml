@@ -1,6 +1,6 @@
 name = "FiniteHilbertTransform"
 uuid = "68cdf181-988b-4042-8999-0b9541c1c3c2"
-authors = ["Mike Petersen <petersen@iap.fr>"]
+authors = ["Mike Petersen <petersen@iap.fr>", "Mathieu Roule <roule@iap.fr>"]
 version = "0.3.0"
 
 [deps]

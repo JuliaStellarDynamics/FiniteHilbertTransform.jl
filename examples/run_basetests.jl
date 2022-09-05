@@ -2,29 +2,36 @@
 
 
 
-using PerturbPlasma
+using FiniteHilbertTransform
 using OrbitalElements
 
 const bc, M, G = 1.,1. ,1.
-ψ(r::Float64)::Float64       = OrbitalElements.isochrone_psi(r,bc,M,G)
-dψdr(r::Float64)::Float64    = OrbitalElements.isochrone_dpsi_dr(r,bc,M,G)
-d²ψdr²(r::Float64)::Float64  = OrbitalElements.isochrone_ddpsi_ddr(r,bc,M,G)
-Ω₀      =    OrbitalElements.isochrone_Omega0(bc,M,G)
+ψ(r::Float64)::Float64       = OrbitalElements.ψIsochrone(r,bc,M,G)
+dψ(r::Float64)::Float64    = OrbitalElements.dψIsochrone(r,bc,M,G)
+d2ψ(r::Float64)::Float64  = OrbitalElements.d2ψIsochrone(r,bc,M,G)
+Ω₀      =    OrbitalElements.Ω₀Isochrone(bc,M,G)
 
 n1 = -1
 n2 = 2
 omg = 0.0 + 0.02im
 omg_nodim = omg/Ω₀  # Dimensionless frequency rescaled by Omega0
-varpi = OrbitalElements.get_varpi(omg_nodim,n1,n2,dψdr,d²ψdr²,rmax=1000.,Ω₀=Ω₀) # Getting the rescaled frequency
+varpi = OrbitalElements.GetVarpi(omg_nodim,n1,n2,dψ,d2ψ,rmax=1000.,Ω₀=Ω₀) # Getting the rescaled frequency
 
-println(varpi)
+println("Varpi=$varpi")
 
-K_u = 10
-LINEAR="unstable"
-struct_tabLeg = PerturbPlasma.initialize_struct_tabLeg(K_u,false)
+Ku = 10
+
+tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabGLquad(Ku)
+println(tabP)
+
+FHT = FiniteHilbertTransform.LegendreFHTcreate(Ku)
+
+println("Ku=$(FHT.Ku)")
+println("tabu=$(FHT.tabu)")
+
 # get the Legendre integration values
-PerturbPlasma.get_tabLeg!(varpi,K_u,struct_tabLeg,LINEAR)
-tabDLeg = struct_tabLeg.tabDLeg
+FiniteHilbertTransform.get_tabLeg!(varpi,FHT)
+tabDLeg = FHT.tabDLeg
 println(tabDLeg)
 
 
