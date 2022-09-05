@@ -28,7 +28,7 @@ function tabLeg!_NEUTRAL(omg::Complex{Float64},
         ##########
         # Computing D_k(w)
         ##########
-        for k=0:(struct_tabLeg.K_u-1) # Loop over the Legendre indices
+        for k=0:(struct_tabLeg.Ku-1) # Loop over the Legendre indices
             tabDLeg[k+1] = tabQLeg[k+1] # Filling in tabDLeg. ATTENTION, to the shift of the arrays.
         end
         #####
@@ -40,11 +40,11 @@ function tabLeg!_NEUTRAL(omg::Complex{Float64},
         val_0_P = 1.0  + 0.0*im # Initial value for k = 0. ATTENTION, we make sure that the quantity is seen as complex.
         val_1_P = romg + 0.0*im # Initial value for k = 1. ATTENTION, we make sure that the quantity is seen as complex.
         #####
-        tabPLeg!(omg,val_0_P,val_1_P,struct_tabLeg.K_u,tabPLeg) # Computing the tabPLeg
+        tabPLeg!(omg,val_0_P,val_1_P,struct_tabLeg.Ku,tabPLeg) # Computing the tabPLeg
         ##########
         # Computing D_k(w)
         #####
-        for k=0:(struct_tabLeg.K_u-1) # Loop over the Legendre indices
+        for k=0:(struct_tabLeg.Ku-1) # Loop over the Legendre indices
             tabDLeg[k+1] = tabQLeg[k+1] + im*pi*val_H*tabPLeg[k+1] # Filling in tabDLeg. ATTENTION, to the shift of the arrays
         end
         #####

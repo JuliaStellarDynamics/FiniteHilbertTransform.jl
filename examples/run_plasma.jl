@@ -5,16 +5,85 @@ julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 -
 
 julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
 
-julia --threads 4 run_plasma.jl --Cmode legendre --linear unstable --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin 0.0 --Etamax 3.0
+julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin 0.0 --Etamax 3.0
 
 =#
 
+using FiniteHilbertTransform
 
 include("PlasmaModel.jl")
-include("../src/Integrate.jl")
-include("../src/IntegrateChebyshev.jl")
-include("../src/IntegrateLegendre.jl")
-include("../src/IO.jl")
+
+using ArgParse
+
+function parse_commandline()
+    #=parse_commandline
+
+    parse command line arguments.
+    use --help to see the defaults
+    =#
+    tabargs = ArgParseSettings()
+
+    @add_arg_table tabargs begin
+        "--parallel"
+            help     = "Parallel computation: true/false"
+            arg_type = Bool
+            default  = true
+        "--K_u"
+            help     = "Number of nodes in the Gauss-Legendre quadrature"
+            arg_type = Int64
+            default  = 200
+        "--qSELF"
+            help     = "Self-gravity strength: q < 1 for stable"
+            arg_type = Float64
+            default  = 0.5
+        "--xmax"
+            help     = "Truncation range of the velocity range"
+            arg_type = Float64
+            default  = 5.0
+        "--verbose"
+            help     = "Set the report flag (larger gives more report)"
+            arg_type = Int64
+            default  = 1
+        "--nOmega"
+            help     = "Number of real points to compute"
+            arg_type = Int64
+            default  = 801
+        "--Omegamin"
+            help     = "Minimum real frequency"
+            arg_type = Float64
+            default  = -4.0
+        "--Omegamax"
+            help     = "Maximum real frequency"
+            arg_type = Float64
+            default  = 4.0
+        "--nEta"
+            help     = "Number of imaginary points to compute"
+            arg_type = Int64
+            default  = 300
+        "--Etamin"
+            help     = "Minimum imaginary frequency"
+            arg_type = Float64
+            default  = -3.0
+        "--Etamax"
+            help     = "Maximum imaginary frequency"
+            arg_type = Float64
+            default  = -0.01
+        "--Cmode"
+            help     = "Continuation mode for damped calculation (legendre/chebyshev,rational)"
+            arg_type = String
+            default  = "legendre"
+    end
+
+    return parse_args(tabargs)
+end
+
+function print_arguments(parsed_args)
+    println("Parsed args:")
+    for (arg,val) in parsed_args
+        println("  $arg  =>  $val")
+    end
+end
+
 
 
 
@@ -86,9 +155,6 @@ function main()
         @time tabIminusXi = ComputeIminusXi(tabomega,taba,xmax,struct_tabLeg)
     end
 
-    if parsed_args["Cmode"] == "rational"
-
-    end
 
     # Prefix of the directory where the files are dumped
     prefixnamefile = "data/"
@@ -98,7 +164,7 @@ function main()
                "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5"
 
     print("Dumping the data | ")
-    @time dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
+    @time FiniteHilbertTransform.dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
 
 end
 

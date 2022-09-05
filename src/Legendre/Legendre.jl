@@ -53,36 +53,15 @@ end
 
 
 
-"""initialize_struct_tabLeg
-parallelise initialisation of struct_tabLeg_type
-"""
-function initialize_struct_tabLeg(Ku::Int64,PARALLEL::Bool)
-
-    if (PARALLEL)
-        # For parallel runs, we also create containers for each thread
-        # Basis container for every threads
-        nb_threads = Threads.nthreads()
-        struct_tabLeg = [struct_tabLeg_create(Ku) for thr=1:nb_threads]
-    else
-        # Create a default struct_tabLeg used in serial runs
-        # Create one container for non-parallel runs
-        struct_tabLeg = struct_tabLeg_create(Ku)
-    end
-
-    return struct_tabLeg
-
-end
-
-
 """
 fill struct_tabLeg at a given complex frequency for the integration being considered
 
 integration style selection is automatic: if you want to specify a type, call out to the specific integration method.
 
 """
-function get_tabLeg!(omg::Complex{Float64},
-                     struct_tabLeg::structLegendreFHTtype;
-                     verbose::Int64=0)
+function GettabD!(omg::Complex{Float64},
+                  struct_tabLeg::structLegendreFHTtype;
+                  verbose::Int64=0)
 
     # check the imaginary sign. if negative, use damped integration
     if (imag(omg) < 0.0)
@@ -333,7 +312,7 @@ function GetaXi(FHT::structLegendreFHTtype,
             # Current value of P_k
             P = FHT.tabP[k,i]
 
-            res[k] += w*G*P # Update of the sum
+            res[k] += w*Gval*P # Update of the sum
         end
 
         res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.

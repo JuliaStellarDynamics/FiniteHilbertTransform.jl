@@ -35,7 +35,8 @@ function ChebyshevFHTcreate(Ku::Int64;name::String="Chebyshev")
 
     tabu,tabw,tabc,tabP = tabGLquad(Ku)
 
-    return structChebyshevFHTtype(name,Ku,tabu,tabw,tabP,tabc,zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
+    return structChebyshevFHTtype(name,Ku,tabu,tabw,tabP,tabc,
+                                  zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
 
 end
 
@@ -43,8 +44,7 @@ end
 
 
 function get_Chebyshev_Xi(omg::Complex{Float64},
-                          taba::Vector{Float64},
-                          LINEAR::String="damped";
+                          taba::Vector{Float64};
                           verbose::Int64=0)
     #=
      Defining the correct computation function
@@ -75,6 +75,8 @@ function get_Chebyshev_Xi(omg::Complex{Float64},
 end
 
 
+
+
 function getTu(Ku::Int64,tabuCquad::Vector{Float64})
 
     tabPGLquad = zeros(Float64,Ku,Ku)
@@ -102,6 +104,7 @@ function getTu(Ku::Int64,tabuCquad::Vector{Float64})
             # Shifting the temporary variables
             v0, v1 = v1, v
         end
+
     end
 
     return tabPCquad
@@ -140,6 +143,7 @@ function get_sumT(omg::Complex{Float64},
 end
 
 
+
 function get_sumU(omg::Complex{Float64},
                   taba::Vector{Float64})
     #=
@@ -172,6 +176,7 @@ function get_sumU(omg::Complex{Float64},
 end
 
 
+
 # bring in the individual cases
 include("Unstable.jl")
 include("Neutral.jl")
@@ -179,15 +184,16 @@ include("Damped.jl")
 
 
 
+
 function GetaXi(FHT::structChebyshevFHTtype,
                 tabGXi::Array{Float64})
-    """
+                """
 
-    @IMPROVE: how do we handle bad G values?
-    """
+                @IMPROVE: how do we handle bad G values?
+                """
 
     # start with no warnings
-    warnflag zeros(FHT.Ku)
+    warnflag = zeros(FHT.Ku)
 
     res = zeros(Float64,FHT.Ku)
 
@@ -195,8 +201,9 @@ function GetaXi(FHT::structChebyshevFHTtype,
     taba_temp = FFTW.r2r(tabGXi,FFTW.RODFT10,1)
 
     for i=1:FHT.Ku
-        res[i] = taba_temp[i]/FHT.Ku
+        res[i] = taba_temp[i] / FHT.Ku
     end
 
     return res,warnflag
+
 end

@@ -30,7 +30,7 @@ println("Ku=$(FHT.Ku)")
 println("tabu=$(FHT.tabu)")
 
 # get the Legendre integration values
-FiniteHilbertTransform.get_tabLeg!(varpi,FHT)
+FiniteHilbertTransform.GettabD!(varpi,FHT)
 tabDLeg = FHT.tabDLeg
 println(tabDLeg)
 

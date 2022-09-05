@@ -12,5 +12,4 @@ FHTtype = Union{structLegendreFHTtype,structChebyshevFHTtype}
 
 
 
-
 end # module

@@ -45,6 +45,7 @@ plt.savefig('figures/plasma_demo.png')
 
 # open the file
 #f = h5py.File('data/data_chebyshev_Plasma_Ku_200_qSELF_0.5_xmax_20.0.hf5','r')
+#f = h5py.File('data/data_legendre_Plasma_Ku_205_qSELF_0.5_xmax_20.0.hf5','r')
 f = h5py.File('data/data_legendre_Plasma_Ku_205_qSELF_0.5_xmax_20.0.hf5','r')
 #f = h5py.File('data/data_chebyshev_Plasma_Ku_205_qSELF_0.5_xmax_20.0.hf5','r')
 print(list(f.keys()))
