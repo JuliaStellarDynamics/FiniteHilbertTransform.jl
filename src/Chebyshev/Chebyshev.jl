@@ -176,3 +176,27 @@ end
 include("Unstable.jl")
 include("Neutral.jl")
 include("Damped.jl")
+
+
+
+function GetaXi(FHT::structChebyshevFHTtype,
+                tabGXi::Array{Float64})
+    """
+
+    @IMPROVE: how do we handle bad G values?
+    """
+
+    # start with no warnings
+    warnflag zeros(FHT.Ku)
+
+    res = zeros(Float64,FHT.Ku)
+
+    # Perfoming the discrete sine transform
+    taba_temp = FFTW.r2r(tabGXi,FFTW.RODFT10,1)
+
+    for i=1:FHT.Ku
+        res[i] = taba_temp[i]/FHT.Ku
+    end
+
+    return res,warnflag
+end
