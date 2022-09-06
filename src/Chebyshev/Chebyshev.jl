@@ -33,7 +33,7 @@ Create a structChebyshevFHTtype structure
 """
 function ChebyshevFHTcreate(Ku::Int64;name::String="Chebyshev")
 
-    tabu,tabw,tabc,tabP = tabGLquad(Ku)
+    tabu,tabw,tabc,tabP = tabCquad(Ku)
 
     return structChebyshevFHTtype(name,Ku,tabu,tabw,tabP,tabc,
                                   zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
@@ -43,9 +43,9 @@ end
 
 
 
-function get_Chebyshev_Xi(omg::Complex{Float64},
-                          taba::Vector{Float64};
-                          verbose::Int64=0)
+function GettabD!(omg::Complex{Float64},
+                  FHT::structChebyshevFHTtype;
+                  verbose::Int64=0)
     #=
      Defining the correct computation function
     =#
@@ -55,14 +55,14 @@ function get_Chebyshev_Xi(omg::Complex{Float64},
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using DAMPED Chebyshev integration.")
         end
 
-        get_Xi_DAMPED(omg,taba)
+        get_Xi_DAMPED(omg,FHT.taba)
 
     elseif (imag(omg) == 0.0)
         if verbose > 2
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using NEUTRAL Chebyshev integration.")
         end
 
-        get_Xi_NEUTRAL(omg,taba)
+        get_Xi_NEUTRAL(omg,FHT.taba)
 
     else
         # by default use unstable integration
@@ -70,7 +70,7 @@ function get_Chebyshev_Xi(omg::Complex{Float64},
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using UNSTABLE Chebyshev integration.")
         end
 
-        get_Xi_UNSTABLE(omg,taba)
+        get_Xi_UNSTABLE(omg,FHT.taba)
     end
 end
 
@@ -79,9 +79,9 @@ end
 
 function getTu(Ku::Int64,tabuCquad::Vector{Float64})
 
-    tabPGLquad = zeros(Float64,Ku,Ku)
+    tabPCquad = zeros(Float64,Ku,Ku)
 
-    for i=1:K_u # Loop over the nodes
+    for i=1:Ku # Loop over the nodes
 
         u = tabuCquad[i] # Current value of the node
 
@@ -116,11 +116,11 @@ function get_sumT(omg::Complex{Float64},
                   taba::Vector{Float64})
     #=
     # Computes the sum
-    # S_T(\omega) = pi \sum_{k=0}^{K_u-1} a_k T_{k+1}(\omega)
+    # S_T(\omega) = pi \sum_{k=0}^{Ku-1} a_k T_{k+1}(\omega)
     # using Clenshaw's algorithm
     # ATTENTION, to the range of the sum
     =#
-    K_u = size(taba,1)
+    Ku = size(taba,1)
 
 
     b, bp = 0.0+0.0*im, 0.0+0.0*im # Initialising the counters, b_{i} and b_{i+1}
@@ -128,7 +128,7 @@ function get_sumT(omg::Complex{Float64},
     # Loop over the terms
     # ATTENTION, this is in decreasing order
     # ATTENTION, the last element is also scrolled over
-    for i=K_u:-1:1
+    for i=Ku:-1:1
         b, bp = taba[i] + 2.0*omg*b - bp, b # Performing the update
     end
     #####
@@ -148,20 +148,20 @@ function get_sumU(omg::Complex{Float64},
                   taba::Vector{Float64})
     #=
     # Computes the sum
-    # S_U(\omega) = pi \sum_{k=0}^{K_u-1} a_k U_{k}(\omega)
+    # S_U(\omega) = pi \sum_{k=0}^{Ku-1} a_k U_{k}(\omega)
     # using Clenshaw's algorithm
 
     =#
     #####
 
-    K_u = size(taba,1)
+    Ku = size(taba,1)
 
     b, bp = 0.0+0.0*im, 0.0+0.0*im # Initialising the counters
     #####
     # Loop over the terms
     # ATTENTION, this is in decreasing order
     # ATTENTION, the last element is not scrolled over
-    for i=K_u:-1:2
+    for i=Ku:-1:2
         b, bp = taba[i] + 2.0*omg*b - bp, b # Performing the update
     end
     #####

@@ -5,6 +5,8 @@ julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 -
 
 julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
 
+julia --threads 4 run_plasma.jl --Cmode chebyshev --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
+
 julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin 0.0 --Etamax 3.0
 
 =#
