@@ -278,6 +278,50 @@ include("Neutral.jl")
 include("Damped.jl")
 
 
+function GetaXi!(FHT::structLegendreFHTtype,tabGXi::Array{Float64},res::Array{Float64},warnflag::Array{Float64})
+
+    # Loop over the Legendre functions
+    for k=1:FHT.Ku
+
+        res[k] = 0.0
+        warnflag[k] = 0
+
+        for i=1:FHT.Ku # Loop over the G-L nodes
+
+            Gval = tabGXi[i] # Current value of G[u_i]
+
+            # check for NaN contribution: skip this contribution in that case
+            if isnan(Gval)
+                warnflag[k] += 1
+                continue
+            end
+
+            # check for INF contribution: skip the contribution in that case
+            if isinf(Gval)
+                warnflag[k] += 1
+                continue
+            end
+
+            # Current weight
+            w = FHT.tabw[i]
+
+            # Current value of P_k
+            P = FHT.tabP[k,i]
+
+            res[k] += w*Gval*P # Update of the sum
+        end
+
+        res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
+
+    end
+
+    return res,warnflag
+
+end
+
+
+
+
 function GetaXi(FHT::structLegendreFHTtype,
                 tabGXi::Array{Float64})
 
