@@ -278,7 +278,7 @@ include("Neutral.jl")
 include("Damped.jl")
 
 
-function GetaXi!(FHT::structLegendreFHTtype,tabGXi::Array{Float64},res::Array{Float64},warnflag::Array{Float64})
+function GetaXi!(FHT::structLegendreFHTtype,tabGXi::AbstractVector,res::Array{Float64},warnflag::Array{Float64})
 
     # Loop over the Legendre functions
     for k=1:FHT.Ku
