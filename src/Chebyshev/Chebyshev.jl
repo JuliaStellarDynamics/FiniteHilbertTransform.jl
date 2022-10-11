@@ -184,7 +184,7 @@ include("Damped.jl")
 
 
 
-function GetaXi!(FHT::structLegendreFHTtype,
+function GetaXi!(FHT::structChebyshevFHTtype,
                  tabGXi::AbstractVector{Float64},
                  res::Vector{Float64},warnflag::Vector{Float64})
 
