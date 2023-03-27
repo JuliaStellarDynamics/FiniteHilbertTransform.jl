@@ -3,7 +3,7 @@
 # ATTENTION, we do not enforce for omg
 # to have a vanishing imaginary part
 ##################################################
-function get_Xi_NEUTRAL(omg::Complex{Float64},
+function get_Xi_NEUTRAL(omg::ComplexF64,
                          taba::Vector{Float64})
     sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
     #####

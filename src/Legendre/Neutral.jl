@@ -3,8 +3,8 @@
 """
 Function to fill in all the Legendre arrays for an NEUTRAL mode, i.e. Im[w] = 0.0
 """
-function tabLeg!_NEUTRAL(omg::Complex{Float64},
-                         struct_tabLeg::structLegendreFHTtype)
+function tabLeg!_NEUTRAL(omg::ComplexF64,
+                         struct_tabLeg::LegendreFHT)
 
     # The integral is computed in the Cauchy sense, hence the absolute values.
 

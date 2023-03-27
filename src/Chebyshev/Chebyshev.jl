@@ -4,10 +4,10 @@
 
 
 """
-    structChebyshevFHTtype
+    ChebyshevFHT
 
 """
-struct structChebyshevFHTtype
+struct ChebyshevFHT <: AbstractFHT
 
     name::String         # FHT name (default Chebyshev)
     Ku::Int64           # number of sample points
@@ -18,33 +18,33 @@ struct structChebyshevFHTtype
     tabc::Vector{Float64}     # prefactor at each sampling point
 
     # arrays for the continuation
-    tabPLeg::Array{Complex{Float64},1} # Static container for tabPLeg
-    tabQLeg::Array{Complex{Float64},1} # Static container for tabQLeg
-    tabDLeg::Array{Complex{Float64},1} # Static container for tabDLeg
+    tabPLeg::Array{ComplexF64,1} # Static container for tabPLeg
+    tabQLeg::Array{ComplexF64,1} # Static container for tabQLeg
+    tabDLeg::Array{ComplexF64,1} # Static container for tabDLeg
 
 end
 
 
 """
-    ChebyshevFHTcreate(Ku[name, dimension, lmax, nmax, G, rb])
+    ChebyshevFHT(Ku[,name])
 
-Create a structChebyshevFHTtype structure
+Create a ChebyshevFHT structure
 
 """
-function ChebyshevFHTcreate(Ku::Int64;name::String="Chebyshev")
+function ChebyshevFHT(Ku::Int64;name::String="Chebyshev")
 
     tabu,tabw,tabc,tabP = tabCquad(Ku)
 
-    return structChebyshevFHTtype(name,Ku,tabu,tabw,tabP,tabc,
-                                  zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
+    return ChebyshevFHT(name,Ku,tabu,tabw,tabP,tabc,
+                                  zeros(ComplexF64,Ku),zeros(ComplexF64,Ku),zeros(ComplexF64,Ku))
 
 end
 
 
 
 
-function GettabD!(omg::Complex{Float64},
-                  FHT::structChebyshevFHTtype;
+function GettabD!(omg::ComplexF64,
+                  FHT::ChebyshevFHT;
                   verbose::Int64=0)
     #=
      Defining the correct computation function
@@ -112,7 +112,7 @@ end
 
 
 
-function get_sumT(omg::Complex{Float64},
+function get_sumT(omg::ComplexF64,
                   taba::Vector{Float64})
     #=
     # Computes the sum
@@ -144,7 +144,7 @@ end
 
 
 
-function get_sumU(omg::Complex{Float64},
+function get_sumU(omg::ComplexF64,
                   taba::Vector{Float64})
     #=
     # Computes the sum
@@ -184,7 +184,7 @@ include("Damped.jl")
 
 
 
-function GetaXi!(FHT::structChebyshevFHTtype,
+function GetaXi!(FHT::ChebyshevFHT,
                  tabGXi::AbstractVector{Float64},
                  res::Vector{Float64},warnflag::Vector{Float64})
 
@@ -200,7 +200,7 @@ function GetaXi!(FHT::structChebyshevFHTtype,
 
 @IMPROVE: how do we handle bad G values?
 """
-function GetaXi(FHT::structChebyshevFHTtype,
+function GetaXi(FHT::ChebyshevFHT,
                 tabGXi::Array{Float64})
 
 

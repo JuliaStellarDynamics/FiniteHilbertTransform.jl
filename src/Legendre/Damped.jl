@@ -6,8 +6,8 @@ tabLeg!_DAMPED
  Function to fill in all the Legendre arrays
  for a DAMPED mode, i.e. Im[w] < 0.0
 """
-function tabLeg!_DAMPED(omg::Complex{Float64},
-                        struct_tabLeg::structLegendreFHTtype)
+function tabLeg!_DAMPED(omg::ComplexF64,
+                        struct_tabLeg::LegendreFHT)
 
     # the container for D_k(w)
     tabDLeg = struct_tabLeg.tabDLeg

@@ -1,7 +1,7 @@
 ##################################################
 # Response matrix in the DAMPED case
 ##################################################
-function get_Xi_DAMPED(omg::Complex{Float64},
+function get_Xi_DAMPED(omg::ComplexF64,
                        taba::Vector{Float64})
     sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
     #####
@@ -20,7 +20,7 @@ function get_Xi_DAMPED(omg::Complex{Float64},
     return Xi # Output
 end
 
-function get_Xi_array(omg::Complex{Float64},
+function get_Xi_array(omg::ComplexF64,
                        taba::Vector{Float64})
     sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
     #####

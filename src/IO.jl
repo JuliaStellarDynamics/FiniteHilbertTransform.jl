@@ -1,8 +1,8 @@
 using HDF5 # To have access to .hf5 formats
 
 function dump_tabIminusXi(namefile::String,
-                          tabomega::Vector{Complex{Float64}},
-                          tabIminusXi::Vector{Complex{Float64}})
+                          tabomega::Vector{ComplexF64},
+                          tabIminusXi::Vector{ComplexF64})
     #=dump_tabIminusXi
 
     dump the primary mode table

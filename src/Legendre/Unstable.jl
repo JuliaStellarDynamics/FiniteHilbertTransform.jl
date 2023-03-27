@@ -2,8 +2,8 @@
 # Function to fill in all the Legendre arrays
 # for an UNSTABLE mode, i.e. Im[w] > 0.0
 ##################################################
-function tabLeg!_UNSTABLE(omg::Complex{Float64},
-                          struct_tabLeg::structLegendreFHTtype)
+function tabLeg!_UNSTABLE(omg::ComplexF64,
+                          struct_tabLeg::LegendreFHT)
     ##########
     tabDLeg = struct_tabLeg.tabDLeg # Name of the container for D_k(w)
     ##########

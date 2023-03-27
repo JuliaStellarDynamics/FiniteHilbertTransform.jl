@@ -2,7 +2,7 @@
 # Generic function that computes Xi(omg)
 # the response matrix in the UNSTABLE case
 ##################################################
-function get_Xi_UNSTABLE(omg::Complex{Float64},
+function get_Xi_UNSTABLE(omg::ComplexF64,
                          taba::Vector{Float64})
     sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
     #####

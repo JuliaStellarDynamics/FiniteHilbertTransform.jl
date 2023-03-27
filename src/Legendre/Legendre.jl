@@ -16,10 +16,10 @@
 """
 
 """
-    structLegendreFHTtype
+    LegendreFHT
 
 """
-struct structLegendreFHTtype
+struct LegendreFHT <: AbstractFHT
 
     name::String         # FHT name (default Legendre)
     Ku::Int64           # number of sample points
@@ -30,24 +30,24 @@ struct structLegendreFHTtype
     tabc::Vector{Float64}     # prefactor at each sampling point
 
     # arrays for the continuation
-    tabPLeg::Array{Complex{Float64},1} # Static container for tabPLeg
-    tabQLeg::Array{Complex{Float64},1} # Static container for tabQLeg
-    tabDLeg::Array{Complex{Float64},1} # Static container for tabDLeg
+    tabPLeg::Array{ComplexF64,1} # Static container for tabPLeg
+    tabQLeg::Array{ComplexF64,1} # Static container for tabQLeg
+    tabDLeg::Array{ComplexF64,1} # Static container for tabDLeg
 
 end
 
 
 """
-    LegendreFHTcreate(Ku[name, dimension, lmax, nmax, G, rb])
+    LegendreFHT(Ku[,name])
 
-Create a structLegendreFHTtype structure
+Create a LegendreFHT structure
 
 """
-function LegendreFHTcreate(Ku::Int64;name::String="Legendre")
+function LegendreFHT(Ku::Int64;name::String="Legendre")
 
     tabu,tabw,tabc,tabP = tabGLquad(Ku)
 
-    return structLegendreFHTtype(name,Ku,tabu,tabw,tabP,tabc,zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku),zeros(Complex{Float64},Ku))
+    return LegendreFHT(name,Ku,tabu,tabw,tabP,tabc,zeros(ComplexF64,Ku),zeros(ComplexF64,Ku),zeros(ComplexF64,Ku))
 
 end
 
@@ -59,8 +59,8 @@ fill struct_tabLeg at a given complex frequency for the integration being consid
 integration style selection is automatic: if you want to specify a type, call out to the specific integration method.
 
 """
-function GettabD!(omg::Complex{Float64},
-                  struct_tabLeg::structLegendreFHTtype;
+function GettabD!(omg::ComplexF64,
+                  struct_tabLeg::LegendreFHT;
                   verbose::Int64=0)
 
     # check the imaginary sign. if negative, use damped integration
@@ -117,10 +117,10 @@ end
 
 
 
-function tabQLeg!(omg::Complex{Float64},
-                  val_0::Complex{Float64},
-                  val_1::Complex{Float64},
-                  tabQLeg::Array{Complex{Float64},1})
+function tabQLeg!(omg::ComplexF64,
+                  val_0::ComplexF64,
+                  val_1::ComplexF64,
+                  tabQLeg::Array{ComplexF64,1})
     #=tabQLeg
      Function that pre-computes the Hilbert-transformed
      Legendre functions for a given complex frequency
@@ -170,11 +170,11 @@ function tabQLeg!(omg::Complex{Float64},
     end
 end
 
-function tabPLeg!(omg::Complex{Float64},
-                  val_0::Complex{Float64},
-                  val_1::Complex{Float64},
+function tabPLeg!(omg::ComplexF64,
+                  val_0::ComplexF64,
+                  val_1::ComplexF64,
                   Ku::Int64,
-                  tabPLeg::Array{Complex{Float64},1})
+                  tabPLeg::Array{ComplexF64,1})
     #=tabPLeg
      Function that pre-computes the Legendre functions, P_k(w),
      for a given complex frequency
@@ -191,11 +191,11 @@ function tabPLeg!(omg::Complex{Float64},
     tabLeg_UP!(omg,val_0,val_1,Ku,tabPLeg)
 end
 
-function tabLeg_UP!(omg::Complex{Float64},
-                    val_0::Complex{Float64},
-                    val_1::Complex{Float64},
+function tabLeg_UP!(omg::ComplexF64,
+                    val_0::ComplexF64,
+                    val_1::ComplexF64,
                     Ku::Int64,
-                    tabLeg::Array{Complex{Float64},1})
+                    tabLeg::Array{ComplexF64,1})
     #=
      Function to compute Legendre functions
      with an UPWARD recurrence
@@ -225,11 +225,11 @@ function tabLeg_UP!(omg::Complex{Float64},
 end
 
 
-function tabLeg_BACK!(omg::Complex{Float64},
-                      val_0::Complex{Float64},
+function tabLeg_BACK!(omg::ComplexF64,
+                      val_0::ComplexF64,
                       K_c::Int64,
                       Ku::Int64,
-                      tabLeg::Array{Complex{Float64},1})
+                      tabLeg::Array{ComplexF64,1})
     #=tabLeg_BACK!
      Function to compute Legendre functions
      with a BACKWARD recurrence
@@ -278,7 +278,7 @@ include("Neutral.jl")
 include("Damped.jl")
 
 
-function GetaXi!(FHT::structLegendreFHTtype,
+function GetaXi!(FHT::LegendreFHT,
                  tabGXi::AbstractVector{Float64},
                  res::Vector{Float64},warnflag::Vector{Float64})
 
@@ -324,7 +324,7 @@ end
 
 
 
-function GetaXi(FHT::structLegendreFHTtype,
+function GetaXi(FHT::LegendreFHT,
                 tabGXi::Array{Float64})
 
     # start with no warnings
