@@ -23,7 +23,6 @@ jobs:
             ls
             julia --project=fht -e '
               using Pkg
-              Pkg.develop(PackageSpec(path="/home/runner/work/FiniteHilbertTransform.jl/OrbitalElements.jl"))
               Pkg.develop(PackageSpec(path="/home/runner/work/FiniteHilbertTransform.jl/FiniteHilbertTransform.jl"))'
       - name: benchmark
         run: julia --project=fht examples/run_basetests.jl
