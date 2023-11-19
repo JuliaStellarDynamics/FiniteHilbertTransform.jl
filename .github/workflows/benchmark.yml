@@ -18,6 +18,7 @@ jobs:
             julia --project=fht -e '
               using Pkg
               Pkg.add("BenchmarkTools")
+              Pkg.add("ArgParse")
               Pkg.add(url="https://github.com/michael-petersen/OrbitalElements.jl.git")
               Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")'
             ls
