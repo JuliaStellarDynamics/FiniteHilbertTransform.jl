@@ -1,17 +1,53 @@
 
 # FiniteHilbertTransform.jl
+## Version 0.9 (Documentation missing)
 
-`FiniteHilbertTransform.jl` is a package written in Julia as a toolbox for computing finite Hilbert transformations. The best background reading on the subject is Tricomi (1957), with apologies for the older style.
+**FiniteHilbertTransform.jl** is a Julia package designed to compute finite Hilbert transformations. This toolbox is inspired by Tricomi's work from 1957, offering powerful capabilities despite its vintage influence.
 
------------------------------
+## Quick Activation
 
-### Quick activate
+**FiniteHilbertTransform** is currently unregistered. To add it to your Julia registry, follow these steps:
 
-`FiniteHilbertTransform` is (currently) unregistered, and as such if you would like to add it to your Julia registry, read [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages). Short version: when in the package manager, `add "git@github.com:michael-petersen/FiniteHilbertTransform.git"`. (If you are getting an error about git keys, you will need to register your private key using the julia shell prompt (access with `;`), and then pointing at your private key: `ssh-add ~/.ssh/id_rsa`.) You can verify the current version with `status FiniteHilbertTransform` in the package manager. Then, `import FiniteHilbertTransform` and you are ready to go.
+1. **Read Documentation:** For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
-Another option, to work directly from a codebase: in the main directory where you the package lives, enter the Julia environment (`julia`), then the package manager (`]`), then activate (`activate .`). To be extra safe, you can `resolve` to check for updates. Then return to the Julia interpreter (`[backspace]`): you are good to go with the latest version of the package! Import by typing `using FiniteHilbertTransform` into the Julia interpreter. You may also need to download some packages if you are using a new Julia interpreter: try `using(Pkg);Pkg.instantiate()`.
+2. **Add Package:** Use the package manager and execute the following command:
+    ```julia
+    add "git@github.com:michael-petersen/FiniteHilbertTransform.git"
+    ```
 
------------------------------
+3. **Handling Git Keys:** If you encounter Git key errors, register your private key using the Julia shell prompt (access with `;`), and point to your private key:
+    ```julia
+    ssh-add ~/.ssh/id_rsa
+    ```
+
+4. **Verify Version:** Confirm the current version with `status FiniteHilbertTransform` in the package manager.
+
+5. **Import Package:** Import the package in your Julia environment with `import FiniteHilbertTransform`.
+
+## Working from Source
+
+Alternatively, work directly from the codebase:
+
+1. **Activate Environment:** In the main directory of the package, enter the Julia environment using `julia`.
+
+2. **Access Package Manager:** Inside the Julia environment, open the package manager with `]`.
+
+3. **Activate Project:** Activate the project using `activate .`. For added safety, resolve dependencies using `resolve` to check for updates.
+
+4. **Return to Julia Interpreter:** Exit the package manager with `[backspace]`. You are now equipped with the latest package version.
+
+5. **Import Package:** Import the package by typing `using FiniteHilbertTransform` in the Julia interpreter.
+
+Note: If you are using a new Julia interpreter, you might need to download additional packages. Use the following command:
+```julia
+using(Pkg)
+Pkg.instantiate()
+```
+
+**FiniteHilbertTransform.jl** provides efficient and reliable tools for finite Hilbert transformations, ensuring seamless integration with your Julia workflows.
+
+
+This function precomputes the Hilbert-transformed Legendre functions \( Q_k(w) \) for a given complex frequency \( omg \). The Hilbert transform is defined as \( Q_k(w) = \int_{-1}^{1} \frac{P_k(u)}{u - w} du \), where \( P_k(u) \) is the Legendre function of the first kind. It is important to note that \( Q_k(w) = -2 q_k(w) \) for real values of \( w \), where \( q_k(w) \) represents the Legendre functions of the second kind.
 
 ### Testing Plasma Techniques (Legendre)
 
@@ -49,5 +85,6 @@ test_ninepointsC(tabaC,20.)
 
 ### Authors
 
-Mike Petersen -  @michael-petersen - petersen@iap.fr
+Mike Petersen -  @michael-petersen - michael.petersen@roe.ac.uk
+
 Mathieu Roule -  @MathieuRoule - roule@iap.fr

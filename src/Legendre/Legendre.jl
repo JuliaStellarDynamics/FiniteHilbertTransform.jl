@@ -18,6 +18,31 @@
 """
     LegendreFHT
 
+Type representing Legendre Finite Hilbert Transform (FHT) parameters.
+
+This struct stores the necessary parameters for performing a Finite Hilbert Transform using Legendre functions. It implements the AbstractFHT interface and provides the required data structures and computations for Legendre FHT.
+
+# Fields:
+- `name::String`: FHT name (default: "Legendre").
+- `Ku::Int64`: Number of sample points.
+- `tabu::Array{Float64,1}`: Array containing u values (sampling points).
+- `tabw::Array{Float64,1}`: Array containing w values (weights at sampling points).
+- `tabP::Matrix{Float64}`: Matrix containing P_k(u) values (Ku x Ku).
+- `tabc::Vector{Float64}`: Vector containing prefactor values at each sampling point.
+- `tabPLeg::Array{ComplexF64,1}`: Static container for tabPLeg (Legendre functions of the first kind).
+- `tabQLeg::Array{ComplexF64,1}`: Static container for tabQLeg (Hilbert-transformed Legendre functions).
+- `tabDLeg::Array{ComplexF64,1}`: Static container for tabDLeg (Derivatives of Legendre functions).
+
+# Example:
+```julia
+Ku = 100
+tabu = collect(-1.0:2/(Ku-1):1.0)
+tabw = compute_weights(tabu) # Compute weights for Legendre functions
+tabP = compute_legendre_matrix(tabu) # Compute Legendre functions matrix
+tabc = compute_prefactors(tabu) # Compute Legendre prefactors
+
+FHT = LegendreFHT("Legendre", Ku, tabu, tabw, tabP, tabc, zeros(ComplexF64, Ku), zeros(ComplexF64, Ku), zeros(ComplexF64, Ku))
+```
 """
 struct LegendreFHT <: AbstractFHT
 
@@ -91,15 +116,31 @@ function GettabD!(omg::ComplexF64,
 end
 
 
-"""Heaviside
-Heaviside function on the interval [-1,1]
-Here, H[x] has a REAL argument, and returns
-0   for x < -1
-1/2 for x = -1
-1   for -1 < x < 1
-1/2 for x = 1
-0   for 1 < x
-ATTENTION, the equality tests on Float64 might not be very robust
+"""
+    Heaviside(x::Float64)
+
+Calculate the Heaviside function on the interval [-1, 1].
+
+The Heaviside function, denoted as H(x), is defined as follows:
+- H(x) = 0 for x < -1
+- H(x) = 0.5 for x = -1
+- H(x) = 1 for -1 < x < 1
+- H(x) = 0.5 for x = 1
+- H(x) = 0 for x > 1
+
+ATTENTION: The equality tests on Float64 might not be very robust.
+
+# Arguments:
+- `x::Float64`: Real number for which Heaviside function is calculated.
+
+# Returns:
+- `Float64`: Value of the Heaviside function at x.
+
+# Example:
+```julia
+x = 0.5
+result = Heaviside(x)  # Returns 1.0
+```
 """
 function Heaviside(x::Float64)
     if     (x <  -1.0)      # Left of the interval
@@ -115,33 +156,39 @@ function Heaviside(x::Float64)
     end
 end
 
+"""
+    tabQLeg!(omg::ComplexF64, val_0::ComplexF64, val_1::ComplexF64, tabQLeg::Array{ComplexF64,1})
+
+Precompute Hilbert-transformed Legendre functions for a given complex frequency.
 
 
+# Arguments:
+- `omg::ComplexF64`: Complex frequency. (ATTENTION: Must be complex.)
+- `val_0::ComplexF64`: Initial value for ` k = 0 `. (ATTENTION: Must be complex.)
+- `val_1::ComplexF64`: Initial value for ` k = 1 `. (ATTENTION: Must be complex.)
+- `tabQLeg::Array{ComplexF64,1}`: Container to store the precomputed Hilbert-transformed Legendre functions.
+
+# Details:
+This function uses different recurrence relations based on the location of the complex frequency ` omg `. If ` omg ` is sufficiently close to the real line `[-1,1]`, it employs an upward recurrence. Otherwise, if ` omg ` is far away from the real line `[-1,1]`, it uses a backward recurrence. The transition between these regimes is determined dynamically.
+
+The transition from the two regimes follows from the thesis Stable Implementation of Three-Term Recurrence Relations, Pascal Frederik Heiter, June, 2010
+https://www.uni-ulm.de/fileadmin/website_uni_ulm/mawi.inst.070/funken/bachelorarbeiten/bachelorthesis_pfh.pdf
+
+# Example:
+```julia
+omg = 1.0 + 2.0im
+val_0 = 1.0 + 1.0im
+val_1 = 2.0 + 2.0im
+Ku = 10
+tabQLeg = zeros(ComplexF64, Ku)
+tabQLeg!(omg, val_0, val_1, tabQLeg)
+```
+
+"""
 function tabQLeg!(omg::ComplexF64,
                   val_0::ComplexF64,
                   val_1::ComplexF64,
                   tabQLeg::Array{ComplexF64,1})
-    #=tabQLeg
-     Function that pre-computes the Hilbert-transformed
-     Legendre functions for a given complex frequency
-     Q_k(w) = INT[P_k(u)/(u-w),{u,-1,1}]
-     ATTENTION, this is == -2 q_k(w)
-     with q_k(w) the Legendre functions of the second kind
-     for REAL values of w.
-
-     Arguments are:
-     + omg: COMPLEX frequency.      ATTENTION, has to be complex.
-     + val_0: Initial value in k=0. ATTENTION, has to be complex.
-     + val_1: Initial value in k=1. ATTENTION, has to be complex.
-     + tabQLeg: Container where to store the results
-     There are two possible algorithms:
-     + Close to the real line [-1,1], we use an upward recurrence
-     + Far-away from the real line[-1,1], we use a downward recurrence
-     The transition from the two regimes follows from the thesis
-     Stable Implementation of Three-Term Recurrence Relations
-     Pascal Frederik Heiter, June, 2010
-     https://www.uni-ulm.de/fileadmin/website_uni_ulm/mawi.inst.070/funken/bachelorarbeiten/bachelorthesis_pfh.pdf
-    =#
 
     Ku = size(tabQLeg,1)
 
@@ -191,25 +238,40 @@ function tabPLeg!(omg::ComplexF64,
     tabLeg_UP!(omg,val_0,val_1,Ku,tabPLeg)
 end
 
+
+"""
+    tabLeg_UP!(omg::ComplexF64, val_0::ComplexF64, val_1::ComplexF64, Ku::Int64, tabLeg::Array{ComplexF64,1})
+
+Compute Legendre functions with an UPWARD recurrence.
+
+This function calculates Legendre functions with an upward recurrence relation. Both P_k(w) and Q_k(w) satisfy the same two-term recurrence, and this function is used for both P_k(w) and Q_k(w) computations.
+
+# Arguments:
+- `omg::ComplexF64`: Complex frequency. (ATTENTION: Must be complex.)
+- `val_0::ComplexF64`: Initial value for k=0. (ATTENTION: Must be complex.)
+- `val_1::ComplexF64`: Initial value for k=1. (ATTENTION: Must be complex.)
+- `Ku::Int64`: Upper limit of the Legendre functions to be computed.
+- `tabLeg::Array{ComplexF64,1}`: Container to store the resulting Legendre functions.
+
+# Details:
+This function computes Legendre functions using Bonnet's recurrence relation: D_k(omg) = ((2.0*k-1.0)*omg*v_1 - (k-1.0)*v_0) / k, where v_0 and v_1 are initial values.
+
+# Example:
+```julia
+omg = 1.0 + 2.0im
+val_0 = 1.0 + 1.0im
+val_1 = 2.0 + 2.0im
+Ku = 10
+tabLeg = zeros(ComplexF64, Ku)
+tabLeg_UP!(omg, val_0, val_1, Ku, tabLeg)
+```
+"""
 function tabLeg_UP!(omg::ComplexF64,
                     val_0::ComplexF64,
                     val_1::ComplexF64,
                     Ku::Int64,
                     tabLeg::Array{ComplexF64,1})
-    #=
-     Function to compute Legendre functions
-     with an UPWARD recurrence
-     This function is used for both P_k(w) and Q_k(w)
-     as they satisfy the same two-term recurrence
-     + It is always used for P_k(w)
-     + It is used for Q_k(w) only sufficiently close to [-1,1]
 
-     Arguments:
-     + omg: COMPLEX frequency. ATTENTION, has to be complex.
-     + val_0: Initial value for k=0. ATTENTION, has to be complex.
-     + val_1: Initial value for k=1. ATTENTION, has to be complex.
-     + tabLeg: Container where to store the result
-    =#
     tabLeg[0+1] = val_0 # Filling in the value of D_0(omg). ATTENTION, to the shift in the array index
     tabLeg[1+1] = val_1 # Filling in the value of D_1(omg). ATTENTION, to the shift in the array index
     #####
@@ -225,24 +287,39 @@ function tabLeg_UP!(omg::ComplexF64,
 end
 
 
+"""
+    tabLeg_BACK!(omg::ComplexF64, val_0::ComplexF64, K_c::Int64, Ku::Int64, tabLeg::Array{ComplexF64,1})
+
+Compute Legendre functions with a BACKWARD recurrence.
+
+This function calculates Legendre functions with a backward recurrence relation. It is specifically used for computing Q_k(w) when the input frequency omg is sufficiently far away from the range [-1,1].
+
+# Arguments:
+- `omg::ComplexF64`: Complex frequency. (ATTENTION: Must be complex.)
+- `val_0::ComplexF64`: Initial value for k=0. (ATTENTION: Must be complex.)
+- `K_c::Int64`: Value of k at which the warm-up starts.
+- `Ku::Int64`: Upper limit of the Legendre functions to be computed.
+- `tabLeg::Array{ComplexF64,1}`: Container to store the resulting Legendre functions. (Modified in place.)
+
+# Details:
+This function computes Legendre functions using a backward recurrence relation. It performs a warm-up phase for k in the range K_c down to Ku, and then stores the computed Legendre values from Ku down to 0. The computed values are rescaled to match the initial value val_0 for k=0.
+
+# Example:
+```julia
+omg = 1.0 + 2.0im
+val_0 = 1.0 + 1.0im
+K_c = 5
+Ku = 10
+tabLeg = zeros(ComplexF64, Ku)
+tabLeg_BACK!(omg, val_0, K_c, Ku, tabLeg)
+```
+"""
 function tabLeg_BACK!(omg::ComplexF64,
                       val_0::ComplexF64,
                       K_c::Int64,
                       Ku::Int64,
                       tabLeg::Array{ComplexF64,1})
-    #=tabLeg_BACK!
-     Function to compute Legendre functions
-     with a BACKWARD recurrence
 
-     This function is only used for Q_k(w)
-     sufficiently far away from [-1,1].
-
-     Arguments:
-     + omg: COMPLEX frequency. ATTENTION, has to be complex.
-     + val_0: Initial value in k=0. ATTENTION, has to complex.
-     + K_c: Value of k at which the warm-up starts
-     + tabLeg: Container where to store the results (modify in place)
-    =#
 
     # Initialisation of D_(K_c+1)[omg]
     v0 = 1.0
@@ -278,6 +355,33 @@ include("Neutral.jl")
 include("Damped.jl")
 
 
+"""
+    GetaXi!(FHT::LegendreFHT, tabGXi::AbstractVector{Float64}, res::Vector{Float64}, warnflag::Vector{Float64})
+
+Compute the Finite Hilbert Transform for Legendre functions.
+
+# Arguments
+- `FHT::LegendreFHT`: An object representing the Legendre Finite Hilbert Transform.
+- `tabGXi::AbstractVector{Float64}`: Vector containing precomputed values of G[u_i].
+- `res::Vector{Float64}`: Output vector to store the results of the Finite Hilbert Transform.
+- `warnflag::Vector{Float64}`: Vector to store warning flags for each Legendre function.
+
+# Details
+This function computes the Finite Hilbert Transform for Legendre functions based on the provided precomputed values of G[u_i].
+
+# Output
+- `res::Vector{Float64}`: Vector containing the results of the Finite Hilbert Transform for Legendre functions.
+- `warnflag::Vector{Float64}`: Vector containing warning flags. Each element represents the number of NaN or INF contributions for the corresponding Legendre function.
+
+# Example
+```julia
+FHT = LegendreFHT(parameters)
+tabGXi = compute_tabGXi(...)  # Precompute tabGXi values
+res = zeros(Float64, FHT.Ku)
+warnflag = zeros(Float64, FHT.Ku)
+GetaXi!(FHT, tabGXi, res, warnflag)
+```
+"""
 function GetaXi!(FHT::LegendreFHT,
                  tabGXi::AbstractVector{Float64},
                  res::Vector{Float64},warnflag::Vector{Float64})
@@ -323,7 +427,28 @@ end
 
 
 
+"""
+    GetaXi(FHT::LegendreFHT, tabGXi::Array{Float64})
 
+Calculate the Finite Hilbert Transform for Legendre functions.
+
+This function computes the Finite Hilbert Transform for Legendre functions based on the provided Legendre Finite Hilbert Transform parameters and precomputed values of G[u_i]. The results are stored in a vector, and warning flags indicating NaN or INF contributions are also provided.
+
+# Arguments:
+- `FHT::LegendreFHT`: An object representing the Legendre Finite Hilbert Transform.
+- `tabGXi::Array{Float64}`: Array containing precomputed values of G[u_i].
+
+# Returns:
+- `res::Vector{Float64}`: Vector containing the results of the Finite Hilbert Transform for Legendre functions.
+- `warnflag::Vector{Float64}`: Vector containing warning flags. Each element represents the number of NaN or INF contributions for the corresponding Legendre function.
+
+# Example:
+```julia
+FHT = LegendreFHT(parameters)
+tabGXi = compute_tabGXi(...)  # Precompute tabGXi values
+res, warnflag = GetaXi(FHT, tabGXi)
+```
+"""
 function GetaXi(FHT::LegendreFHT,
                 tabGXi::Array{Float64})
 
