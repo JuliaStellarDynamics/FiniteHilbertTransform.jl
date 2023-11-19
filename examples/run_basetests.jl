@@ -24,7 +24,7 @@ Ku = 10
 tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabGLquad(Ku)
 println(tabP)
 
-FHT = FiniteHilbertTransform.LegendreFHTcreate(Ku)
+FHT = FiniteHilbertTransform.LegendreFHT(Ku)
 
 println("Ku=$(FHT.Ku)")
 println("tabu=$(FHT.tabu)")

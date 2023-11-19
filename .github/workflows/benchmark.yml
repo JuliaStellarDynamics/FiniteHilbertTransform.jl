@@ -25,4 +25,6 @@ jobs:
               using Pkg
               Pkg.develop(PackageSpec(path="/home/runner/work/FiniteHilbertTransform.jl/FiniteHilbertTransform.jl"))'
       - name: benchmark
-        run: julia --project=fht examples/run_basetests.jl
+        run: |
+            julia --project=fht examples/run_basetests.jl
+            julia --project=fht examples/run_plasma.jl
