@@ -15,9 +15,9 @@ n1 = -1
 n2 = 2
 omg = 0.0 + 0.02im
 omg_nodim = omg/Ω₀  # Dimensionless frequency rescaled by Omega0
-varpi = OrbitalElements.GetVarpi(omg_nodim,n1,n2,dψ,d2ψ,rmax=1000.,Ω₀=Ω₀) # Getting the rescaled frequency
+ϖ = OrbitalElements.Getϖ(omg_nodim,n1,n2,dψ,d2ψ,rmax=1000.,Ω₀=Ω₀) # Getting the rescaled frequency
 
-println("Varpi=$varpi")
+println("ϖ=$ϖ")
 
 Ku = 10
 
@@ -30,7 +30,7 @@ println("Ku=$(FHT.Ku)")
 println("tabu=$(FHT.tabu)")
 
 # get the Legendre integration values
-FiniteHilbertTransform.GettabD!(varpi,FHT)
+FiniteHilbertTransform.GettabD!(ϖ,FHT)
 tabDLeg = FHT.tabDLeg
 println(tabDLeg)
 
