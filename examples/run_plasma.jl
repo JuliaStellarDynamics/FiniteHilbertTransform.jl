@@ -159,7 +159,7 @@ function main()
 
 
     # Prefix of the directory where the files are dumped
-    prefixnamefile = "data/"
+    prefixnamefile = "examples/data/"
 
     # Name of the file where the data is dumped
     namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
