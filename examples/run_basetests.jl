@@ -15,7 +15,7 @@ n1 = -1
 n2 = 2
 omg = 0.0 + 0.02im
 omg_nodim = omg/Ω₀  # Dimensionless frequency rescaled by Omega0
-ϖ = OrbitalElements.Getϖ(omg_nodim,n1,n2,dψ,d2ψ,rmax=1000.,Ω₀=Ω₀) # Getting the rescaled frequency
+ϖ = OrbitalElements.Getϖ(omg_nodim,n1,n2,dψ,d2ψ) # Get the rescaled frequency
 
 println("ϖ=$ϖ")
 
