@@ -31,7 +31,7 @@ end
 
 
 
-include("../src/Integrate.jl")
+#include("../src/Integrate.jl")
 
 """
 the G(u) function for a plasma
@@ -53,7 +53,7 @@ Function that computes the values of I-Xi(omg) for a given complex frequency
 function GetLegendreIminusXiPlasma(omg::Complex{Float64},
                                    taba::Vector{Float64},
                                    xmax::Float64,
-                                   FHT::FiniteHilbertTransform.FHTtype)
+                                   FHT::FiniteHilbertTransform.AbstractFHT)
 
 
     # Rescale the COMPLEX frequency
@@ -216,7 +216,7 @@ compute a_k(u) by looping over Legendre weights w(u), P_k(u) values, and G(u) va
 
 parallel or non-parallel options
 """
-function ComputeALegendre(FHT::FiniteHilbertTransform.structLegendreFHTtype,tabG::Vector{Float64})
+function ComputeALegendre(FHT::FiniteHilbertTransform.LegendreFHT,tabG::Vector{Float64})
 
     taba, warnflag = FiniteHilbertTransform.GetaXi(FHT,tabG)
 
@@ -232,7 +232,7 @@ wrapper to parallelise calculations of I-Xi
 function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
                          taba::Vector{Float64},
                          xmax::Float64,
-                         struct_tabLeg::Vector{FiniteHilbertTransform.structLegendreFHTtype})
+                         struct_tabLeg::Vector{FiniteHilbertTransform.LegendreFHT})
 
     # get constants
     K_u    = size(taba,1)
@@ -267,7 +267,7 @@ build various tables for integrating the plasma problem with Legendre
 function setup_legendre_integration(Ku::Int64,qself::Float64,xmax::Float64,PARALLEL::Bool=false)
 
     # Filling in the arrays used in the G-L quadrature (src/Precompute.jl)
-    FHT = FiniteHilbertTransform.LegendreFHTcreate(Ku)
+    FHT = FiniteHilbertTransform.LegendreFHT(Ku)
 
     # compute the function G(u)
     tabG = CGFuncPlasma(FHT.tabu,qself,xmax)
