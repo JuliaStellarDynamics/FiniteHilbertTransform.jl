@@ -42,7 +42,11 @@ end
 
 
 
+"""
+fill `fht` at a given complex frequency for the integration being considered
 
+integration style selection is automatic: if you want to specify a type, call out to the specific integration method.
+"""
 function GettabD!(omg::ComplexF64,
                   FHT::ChebyshevFHT;
                   verbose::Int64=0)
