@@ -1,6 +1,8 @@
 
 # FiniteHilbertTransform.jl
-## Version 0.9 (Documentation missing)
+## Version 0.9
+
+[![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
 
 **FiniteHilbertTransform.jl** is a Julia package designed to compute finite Hilbert transformations. This toolbox is inspired by Tricomi's work from 1957, offering powerful capabilities despite its vintage influence.
 
