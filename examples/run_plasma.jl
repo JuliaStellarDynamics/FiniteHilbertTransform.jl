@@ -1,20 +1,23 @@
 #=
 An example call:
 
-julia --threads 4 run_plasma.jl --Cmode chebyshev --linear damped --parallel 1 --K_u 200 --nOmega 801 --nEta 300 --xmax 20
-
-julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
-
-julia --threads 4 run_plasma.jl --Cmode chebyshev --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin -3.0 --Etamax 0.0
-
 julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega 801 --nEta 300 --xmax 20 --Omegamin -4.0 --Omegamax 4.0 --Etamin 0.0 --Etamax 3.0
 
 =#
 
+########################################
+# Installing the necessary libraries
+########################################
+using Pkg
+Pkg.add("Plots")
+Pkg.add("ArgParse")
+
 using FiniteHilbertTransform
+
 
 include("PlasmaModel.jl")
 
+using Plots
 using ArgParse
 
 function parse_commandline()
@@ -41,7 +44,7 @@ function parse_commandline()
         "--xmax"
             help     = "Truncation range of the velocity range"
             arg_type = Float64
-            default  = 5.0
+            default  = 20.0
         "--verbose"
             help     = "Set the report flag (larger gives more report)"
             arg_type = Int64
@@ -49,7 +52,7 @@ function parse_commandline()
         "--nOmega"
             help     = "Number of real points to compute"
             arg_type = Int64
-            default  = 801
+            default  = 800
         "--Omegamin"
             help     = "Minimum real frequency"
             arg_type = Float64
@@ -61,7 +64,7 @@ function parse_commandline()
         "--nEta"
             help     = "Number of imaginary points to compute"
             arg_type = Int64
-            default  = 300
+            default  = 400
         "--Etamin"
             help     = "Minimum imaginary frequency"
             arg_type = Float64
@@ -159,14 +162,27 @@ function main()
 
 
     # Prefix of the directory where the files are dumped
-    prefixnamefile = "examples/data/"
+    prefixnamefile = "data/"
 
     # Name of the file where the data is dumped
     namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
                "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5"
 
-    print("Dumping the data | ")
-    @time FiniteHilbertTransform.dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
+    # you can save the data by uncommenting this:
+    #print("Dumping the data | ")
+    #@time FiniteHilbertTransform.dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
+
+    epsilon_real = reshape(real.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
+    epsilon_imag = reshape(imag.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
+    epsilon = abs.(epsilon_real .+ im * epsilon_imag)
+
+
+    # Plot
+    contour(tabOmega,tabEta,log10.(epsilon), levels=10, color=:black, #levels=[-2.0, -1.5, -1.0, -0.5, -0.25, 0.0], 
+            xlabel="Re[ω]", ylabel="Im[ω]", xlims=(-4, 4), ylims=(-3, 0),
+            clims=(-2, 0), aspect_ratio=:equal, legend=false)
+    savefig("plasmademo.png")
+
 
 end
 
