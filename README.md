@@ -1,30 +1,27 @@
 
 # FiniteHilbertTransform.jl
-## Version 0.9
 
 [![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
 
-**FiniteHilbertTransform.jl** is a Julia package designed to compute finite Hilbert transformations. This toolbox is inspired by Tricomi's work from 1957, offering powerful capabilities despite its vintage influence.
+**FiniteHilbertTransform.jl** is a Julia package designed to compute the finite version of the Hilbert transformations. This toolbox is inspired by Tricomi's work on the finite Hilbert transform from 1957. In the context of gravitational dynamics, the finite Hilbert transform may be used as a scheme for analytic continuation to the lower half of the complex plane. See [Fouvry & Prunet (2022)](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract), or [Petersen et al. (2023)](https://ui.adsabs.harvard.edu/abs/2023arXiv231110630P/abstract) for details.
 
-## Quick Activation
+---
+## Installation
 
-**FiniteHilbertTransform** is currently unregistered. To add it to your Julia registry, follow these steps:
+**FiniteHilbertTransform** is currently unregistered[^1]. To add it to your julia[^2] registry, follow these steps:
 
-1. **Read Documentation:** For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
-
-2. **Add Package:** Use the package manager and execute the following command:
+1. **Add Package:** Use the package manager and execute the following command inside julia:
     ```julia
-    add "git@github.com:michael-petersen/FiniteHilbertTransform.git"
+    add "git@github.com:JuliaStellarDynamics/FiniteHilbertTransform.git"
+    ```
+or at the command line
+    ```
+    $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
     ```
 
-3. **Handling Git Keys:** If you encounter Git key errors, register your private key using the Julia shell prompt (access with `;`), and point to your private key:
-    ```julia
-    ssh-add ~/.ssh/id_rsa
-    ```
+2. **Verify Version:** Confirm the current version with `status FiniteHilbertTransform` in the julia package manager.
 
-4. **Verify Version:** Confirm the current version with `status FiniteHilbertTransform` in the package manager.
-
-5. **Import Package:** Import the package in your Julia environment with `import FiniteHilbertTransform`.
+3. **Import Package:** Import the package in your julia environment with `import FiniteHilbertTransform`.
 
 ## Working from Source
 
@@ -40,48 +37,48 @@ Alternatively, work directly from the codebase:
 
 5. **Import Package:** Import the package by typing `using FiniteHilbertTransform` in the Julia interpreter.
 
+Alternately[^3], you may clone the repository wherever you want and create a local environment (or project) by running:
+```
+$ git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
+$ cd FiniteHilbertTransform.jl
+$ julia --project=. -e 'using Pkg; Pkg.precompile()'
+```
+
 Note: If you are using a new Julia interpreter, you might need to download additional packages. Use the following command:
 ```julia
 using(Pkg)
 Pkg.instantiate()
 ```
 
-**FiniteHilbertTransform.jl** provides efficient and reliable tools for finite Hilbert transformations, ensuring seamless integration with your Julia workflows.
+---
+## Quick use test
 
+An introductory non-trivial example is given in `examples/run_plasma.jl`. This script will recreate Figure E1 from [Fouvry & Prunet (2021).](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract)
 
-This function precomputes the Hilbert-transformed Legendre functions \( Q_k(w) \) for a given complex frequency \( omg \). The Hilbert transform is defined as \( Q_k(w) = \int_{-1}^{1} \frac{P_k(u)}{u - w} du \), where \( P_k(u) \) is the Legendre function of the first kind. It is important to note that \( Q_k(w) = -2 q_k(w) \) for real values of \( w \), where \( q_k(w) \) represents the Legendre functions of the second kind.
+If you installed the library using the first (global) install option, just download this example [file](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl) from the github repository.
 
-### Testing Plasma Techniques (Legendre)
-
-`tabuGLquad,tabwGLquad = FiniteHilbertTransform.tabuwGLquad(K_u)` will call out for the u positions (tabuGLquad) and corresponding weights (tabwGLquad) at K_u points.
-
-`setup_legendre_integration(K_u,qself,xmax,parallel)` will do the setup work of computing the coefficients at K_u Legendre nodes for a plasma model defined by qself and xmax.
-
-`compute_tabIminusXi(tabomega,taba,xmax,struct_tabLeg)` will perform the Legendre integration (struct_tabLeg) over the coefficients (taba) at an array of complex frequencies (tabomega) for a model parameterised by frequency xmax.
-
-`get_Legendre_IminusXi(omega,taba,xmax,struct_tabLeg)` will perform the Legendre integration (struct_tabLeg) over the coefficients (taba) for a single complex frequency (omega) for a model parameterised by frequency xmax.
-
-With these commands, you can perform a manual search for the zeros of I - Xi, the response matrix. The location of zeros indicates the presence of a mode.
-```using FiniteHilbertTransform
-tabaL,structL = setup_legendre_integration(75,0.5,20.,false)
-test_ninepointsL(tabaL,20.,structL)
+Run the code with the following command[^4]:
+```
+$ julia /path/to/run_plasma.jl
 ```
 
------------------------------
+This example will first install some required libraries (`Plots`, `ArgParse`). These installations might take a few minutes when first called.
 
-### Testing Plasma Techniques (Chebyshev)
+The resulting plot will be created in the same folder as the test code under the name `plasmademo.png`.
 
-`setup_chebyshev_integration(K_u,qself,xmax,parallel)` will do the setup work of computing the coefficients at K_u Legendre nodes for a plasma model defined by qself and xmax.
+![`Plasma Demonstration`](examples/plasmademo.png)
 
-`compute_tabIminusXi(tabomega,taba,xmax,method)` will perform the Chebyshev integration (using specified method) over the coefficients (taba) at an array of complex frequencies (tabomega) for a model parameterised by frequency xmax.
+### Interactive notebooks
 
-`get_Chebyshev_IminusXi(omega,taba,xmax)` will perform the Chebyshev integration over the coefficients (taba) for a single complex frequency (omega) for a model parameterised by frequency xmax.
+If you prefer interactive Jupyter notebooks, you will need to install `IJulia` following these [instructions](https://github.com/JuliaLang/IJulia.jl).
 
-Complete demo:
-```using FiniteHilbertTransform
-tabaC = setup_chebyshev_integration(75,0.5,20.,false)
-test_ninepointsC(tabaC,20.)
-```
+The interactive introduction example is then given in `examples/test_AstroBasis.ipynb`.
+
+---
+## Documentation and usage
+
+To get more familiar with the content of the library and start and design your own use case, you may want to visit the [documentation](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/).
+
 
 -----------------------------
 
@@ -90,3 +87,12 @@ test_ninepointsC(tabaC,20.)
 Mike Petersen -  @michael-petersen - michael.petersen@roe.ac.uk
 
 Mathieu Roule -  @MathieuRoule - roule@iap.fr
+
+
+[^1]: For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
+
+[^2]:If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
+
+[^3]: Note that if you use this install option you will always need to run codes in the project context by adding the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia`. The library will not be accessible in your global julia context.
+
+[^4]: Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.
