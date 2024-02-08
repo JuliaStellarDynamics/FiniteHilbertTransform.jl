@@ -15,7 +15,8 @@
     add "git@github.com:JuliaStellarDynamics/FiniteHilbertTransform.git"
     ```
 or at the command line
-    ```
+
+    ```bash
     $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
     ```
 
@@ -72,7 +73,9 @@ The resulting plot will be created in the same folder as the test code under the
 
 If you prefer interactive Jupyter notebooks, you will need to install `IJulia` following these [instructions](https://github.com/JuliaLang/IJulia.jl).
 
-The interactive introduction example is then given in `examples/test_AstroBasis.ipynb`.
+The interactive introduction example is then given in `examples/run_plasma.ipynb`.
+
+For those who prefer not to install julia locally, we also provide a Google colab version that may be run in the cloud. [See here](https://colab.research.google.com/drive/1p4lX5ot5-kKSnIo1XLFchsiOWGQUxEhR).
 
 ---
 ## Documentation and usage
