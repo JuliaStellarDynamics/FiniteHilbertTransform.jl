@@ -13,4 +13,4 @@ This example will first install some required libraries (`Plots`, `ArgParse`). T
 
 The resulting plot will be created in the same folder as the test code under the name `plasmademo.png`.
 
-![`Plasma Demonstration`](../../examples/plasmademo.png)
+![`Plasma Demonstration`](plasmademo.png)
