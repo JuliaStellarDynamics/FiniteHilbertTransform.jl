@@ -3,52 +3,21 @@
 
 [![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
 
-**FiniteHilbertTransform.jl** is a Julia package designed to compute the finite version of the Hilbert transformations. This toolbox is inspired by Tricomi's work on the finite Hilbert transform from 1957. In the context of gravitational dynamics, the finite Hilbert transform may be used as a scheme for analytic continuation to the lower half of the complex plane. See [Fouvry & Prunet (2022)](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract), or [Petersen et al. (2023)](https://ui.adsabs.harvard.edu/abs/2023arXiv231110630P/abstract) for details.
+**FiniteHilbertTransform.jl** is a Julia package designed to compute the finite version of the Hilbert transformations. This toolbox is inspired by Tricomi's work on the finite Hilbert transform from 1957. In the context of gravitational dynamics, the finite Hilbert transform may be used as a scheme for analytic continuation to the lower half of the complex plane. See [Fouvry & Prunet (2022)](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract), or [Petersen et al. (2024)](https://ui.adsabs.harvard.edu/abs/2023arXiv231110630P/abstract) for details.
 
 ---
 ## Installation
 
-**FiniteHilbertTransform** is currently unregistered[^1]. To add it to your julia[^2] registry, follow these steps:
+Install Julia by following the instructions at [julialang.org/downloads/](https://julialang.org/downloads/).
 
-1. **Add Package:** Use the package manager and execute the following command inside julia:
-    ```julia
-    add "git@github.com:JuliaStellarDynamics/FiniteHilbertTransform.git"
-    ```
-or at the command line
+To invoke Julia in the Terminal, you need to make sure that the `julia` command-line program is in your `PATH`. 
+See [here](https://julialang.org/downloads/platform/#optional_add_julia_to_path) for detailed instructions.
 
-    ```bash
-    $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
-    ```
-
-2. **Verify Version:** Confirm the current version with `status FiniteHilbertTransform` in the julia package manager.
-
-3. **Import Package:** Import the package in your julia environment with `import FiniteHilbertTransform`.
-
-## Working from Source
-
-Alternatively, work directly from the codebase:
-
-1. **Activate Environment:** In the main directory of the package, enter the Julia environment using `julia`.
-
-2. **Access Package Manager:** Inside the Julia environment, open the package manager with `]`.
-
-3. **Activate Project:** Activate the project using `activate .`. For added safety, resolve dependencies using `resolve` to check for updates.
-
-4. **Return to Julia Interpreter:** Exit the package manager with `[backspace]`. You are now equipped with the latest package version.
-
-5. **Import Package:** Import the package by typing `using FiniteHilbertTransform` in the Julia interpreter.
-
-Alternately[^3], you may clone the repository wherever you want and create a local environment (or project) by running:
+Once Julia installed, clone the `FiniteHilbertTransform.jl` library and precompile it by running:
 ```
-$ git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
-$ cd FiniteHilbertTransform.jl
-$ julia --project=. -e 'using Pkg; Pkg.precompile()'
-```
-
-Note: If you are using a new Julia interpreter, you might need to download additional packages. Use the following command:
-```julia
-using(Pkg)
-Pkg.instantiate()
+git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
+cd FiniteHilbertTransform.jl
+julia --project=. -e 'using Pkg; Pkg.precompile()'
 ```
 
 ---
@@ -58,7 +27,7 @@ An introductory non-trivial example is given in `examples/run_plasma.jl`. This s
 
 If you installed the library using the first (global) install option, just download this example [file](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl) from the github repository.
 
-Run the code with the following command[^4]:
+Run the code with the following command[^1]:
 ```
 $ julia /path/to/run_plasma.jl
 ```
@@ -92,10 +61,5 @@ Mike Petersen -  @michael-petersen - michael.petersen@roe.ac.uk
 Mathieu Roule -  @MathieuRoule - roule@iap.fr
 
 
-[^1]: For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
-[^2]:If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
-
-[^3]: Note that if you use this install option you will always need to run codes in the project context by adding the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia`. The library will not be accessible in your global julia context.
-
-[^4]: Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.
+[^1]: Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.

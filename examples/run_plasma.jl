@@ -82,6 +82,18 @@ function parse_commandline()
     return parse_args(tabargs)
 end
 
+"""
+    print_arguments(parsed_args)
+
+Prints the parsed arguments in key-value format.
+
+# Arguments
+- `parsed_args::Dict`: A dictionary containing the parsed arguments.
+
+# Description
+`print_arguments` prints each argument and its corresponding value in the `parsed_args` dictionary.
+
+"""
 function print_arguments(parsed_args)
     println("Parsed args:")
     for (arg,val) in parsed_args
@@ -92,20 +104,29 @@ end
 
 
 
+"""
+    get_tabomega(tabOmega::Vector{Float64}, tabEta::Vector{Float64})
+
+Constructs the table of omega values (complex frequency) from the specified real and imaginary components.
+
+# Arguments
+- `tabOmega::Vector{Float64}`: Vector containing the real components of frequency values.
+- `tabEta::Vector{Float64}`: Vector containing the imaginary components of frequency values.
+
+# Returns
+- `tabomega::Vector{Complex{Float64}}`: Vector of complex frequency values.
+
+"""
 function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
-    #=get_tabomega
-
-    construct the table of omega values (complex frequency) from the specified real and imaginary components.
-
-    =#
 
     nOmega = size(tabOmega,1)
     nEta   = size(tabEta,1)
     nomega = nOmega*nEta
 
     tabomega = zeros(Complex{Float64},nomega)
-    icount = 1 # Initialising the counter
-    #####
+    
+    icount = 1 
+
     for iOmega=1:nOmega # Loop over the real part of the frequency
         for iEta=1:nEta # Loop over the complex part of the frequency
             tabomega[icount] = tabOmega[iOmega] + im*tabEta[iEta] # Fill the current value of the complex frequency
@@ -115,6 +136,8 @@ function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
 
     return tabomega
 end
+
+
 
 
 
