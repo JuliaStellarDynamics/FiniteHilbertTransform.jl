@@ -1,6 +1,6 @@
 # Installation
 
-**FiniteHilbertTransform** is currently unregistered[^1]. To add it to your julia[^2] registry, follow these steps:
+**FiniteHilbertTransform** is currently unregistered. To add it to your julia registry, follow these steps:
 
 
 1. **Read Documentation:** For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
@@ -39,7 +39,7 @@ Alternatively, work directly from the codebase:
 
 5. **Import Package:** Import the package by typing `using FiniteHilbertTransform` in the Julia interpreter.
 
-Alternately[^3], you may clone the repository wherever you want and create a local environment (or project) by running:
+Alternately, you may clone the repository wherever you want and create a local environment (or project) by running:
 ```
 $ git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
 $ cd FiniteHilbertTransform.jl
@@ -53,10 +53,10 @@ Pkg.instantiate()
 ```
 
 
-[^1]: For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
+For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
-[^2]:If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
+If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
 
-[^3]: Note that if you use this install option you will always need to run codes in the project context by adding the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia`. The library will not be accessible in your global julia context.
+Note that if you use this install option you will always need to run codes in the project context by adding the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia`. The library will not be accessible in your global julia context.
 
-[^4]: Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.
+Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.
