@@ -7,7 +7,7 @@ makedocs(sitename = "FiniteHilbertTransform.jl",
          pages=[
                 "Home" => "index.md",
                 "Functions" => "functions.md",
-                "Installation" => "installation.md"
+                "Installation" => "installation.md",
                 "Example" => "example.md"
                ],
          format = Documenter.HTML(prettyurls=false))
