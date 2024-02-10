@@ -2,8 +2,12 @@
 # Legendre
 ```@docs
 FiniteHilbertTransform.LegendreFHT
-FiniteHilbertTransform.GettabD!(omg::ComplexF64,fht::FiniteHilbertTransform.LegendreFHT)
+FiniteHilbertTransform.GettabD!
+FiniteHilbertTransform.Heaviside
 FiniteHilbertTransform.tabQLeg!
+FiniteHilbertTransform.tabPLeg!
+FiniteHilbertTransform.GetaXi!
+FiniteHilbertTransform.GetaXi
 ```
 
 

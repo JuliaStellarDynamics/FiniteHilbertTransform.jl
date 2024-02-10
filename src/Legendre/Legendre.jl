@@ -63,9 +63,19 @@ end
 
 
 """
-    LegendreFHT(Ku[,name])
+    LegendreFHT(Ku[, name])
 
-Create a LegendreFHT structure
+Create a LegendreFHT structure.
+
+# Arguments
+- `Ku::Int64`: Number of Legendre modes.
+- `name::String`: Name of the LegendreFHT structure (default: "Legendre").
+
+# Returns
+- `legendre_fht::LegendreFHT`: LegendreFHT structure.
+
+# Description
+`LegendreFHT` constructs a LegendreFHT structure with the specified number of Legendre modes (`Ku`). Optionally, you can provide a `name` for the structure.
 
 """
 function LegendreFHT(Ku::Int64;name::String="Legendre")
@@ -79,9 +89,24 @@ end
 
 
 """
-fill struct_tabLeg at a given complex frequency for the integration being considered
+    GettabD!(omg::Complex{Float64}, struct_tabLeg::LegendreFHT; verbose::Int64=0)
 
-integration style selection is automatic: if you want to specify a type, call out to the specific integration method.
+Fill `struct_tabLeg` at a given complex frequency `omg` for the integration being considered.
+
+# Arguments
+- `omg::Complex{Float64}`: Complex frequency value.
+- `struct_tabLeg::LegendreFHT`: LegendreFHT structure to fill.
+- `verbose::Int64`: Verbosity level (default: 0).
+
+# Description
+`GettabD!` automatically selects the integration style based on the imaginary part of `omg`. If the imaginary part is negative, it uses damped integration. If it's exactly zero, it uses neutral mode calculation. Otherwise, it uses unstable integration.
+
+# Example
+```julia
+tabLeg = LegendreFHT(10)
+omg = 1.0 + 0.5im
+GettabD!(omg, tabLeg, verbose=2)
+```
 
 """
 function GettabD!(omg::ComplexF64,
@@ -217,24 +242,38 @@ function tabQLeg!(omg::ComplexF64,
     end
 end
 
+"""
+    tabPLeg!(omg::Complex{Float64}, val_0::Complex{Float64}, val_1::Complex{Float64}, Ku::Int64, tabPLeg::Vector{Complex{Float64}})
+
+Pre-computes the Legendre functions, P_k(w), for a given complex frequency.
+
+# Arguments
+- `omg::Complex{Float64}`: Complex frequency.
+- `val_0::Complex{Float64}`: Initial value in k=0.
+- `val_1::Complex{Float64}`: Initial value in k=1.
+- `Ku::Int64`: Number of Legendre modes.
+- `tabPLeg::Vector{Complex{Float64}}`: Container to store the results.
+
+# Description
+`tabPLeg!` pre-computes the Legendre functions, P_k(w), for a given complex frequency `omg` using the upward recurrence method. The results are stored in `tabPLeg`.
+
+# Example
+```julia
+omg = 1.0 + 0.5im
+val_0 = 0.0 + 0.0im
+val_1 = 1.0 + 0.0im
+Ku = 10
+tabPLeg = zeros(Complex{Float64}, Ku)
+tabPLeg!(omg, val_0, val_1, Ku, tabPLeg)
+```
+
+"""
 function tabPLeg!(omg::ComplexF64,
                   val_0::ComplexF64,
                   val_1::ComplexF64,
                   Ku::Int64,
                   tabPLeg::Array{ComplexF64,1})
-    #=tabPLeg
-     Function that pre-computes the Legendre functions, P_k(w),
-     for a given complex frequency
 
-     Arguments:
-     + omg: COMPLEX frequency. ATTENTION, has to be complex.
-     + val_0: Initial value in k=0. ATTENTION, has to be complex.
-     + val_1: Initial value in k=1. ATTENTION, has to be complex.
-     + tabPLeg: Container where to store the results
-     For the Legendre functions, we always use the forward recurrence
-    =#
-    #####
-    # For P_k(w), we always use the UPWARD recurrence.
     tabLeg_UP!(omg,val_0,val_1,Ku,tabPLeg)
 end
 
