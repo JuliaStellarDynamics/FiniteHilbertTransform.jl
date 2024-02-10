@@ -1,6 +1,6 @@
 # Installation
 
-**FiniteHilbertTransform** is currently unregistered. To add it to your julia registry, follow these steps:
+**FiniteHilbertTransform** is currently unregistered. To add it to your julia[^1] registry, follow these steps:
 
 
 1. **Read Documentation:** For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
@@ -10,7 +10,6 @@
     add "git@github.com:michael-petersen/FiniteHilbertTransform.git"
     ```
 or at the command line
-
     ```bash
     $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
     ```
@@ -53,7 +52,7 @@ Pkg.instantiate()
 ```
 
 
-For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
+[^1]: For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
 If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
 
