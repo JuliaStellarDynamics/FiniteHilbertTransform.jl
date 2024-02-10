@@ -92,7 +92,6 @@ Prints the parsed arguments in key-value format.
 
 # Description
 `print_arguments` prints each argument and its corresponding value in the `parsed_args` dictionary.
-
 """
 function print_arguments(parsed_args)
     println("Parsed args:")
