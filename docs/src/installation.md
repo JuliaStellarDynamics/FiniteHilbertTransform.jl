@@ -1,24 +1,19 @@
 # Installation
 
-**FiniteHilbertTransform** is currently unregistered. To add it to your julia[^1] registry, follow these steps:
+**FiniteHilbertTransform** is currently unregistered[^1]. To add it to your julia[^2] registry, follow these steps:
 
 
 1. **Read Documentation:** For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
-2. **Add Package:** Use the package manager and execute the following command:
+2. **Add Package:** Use the package manager and execute the following command[^3]:
     ```julia
-    add "git@github.com:michael-petersen/FiniteHilbertTransform.git"
-    ```
-or at the command line
-    ```bash
-    $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
+    add "git@github.com:JuliaStellarDynamics/FiniteHilbertTransform.git"
     ```
 
 3. **Handling Git Keys:** If you encounter Git key errors, register your private key using the Julia shell prompt (access with `;`), and point to your private key:
     ```julia
     ssh-add ~/.ssh/id_rsa
     ```
-
 
 4. **Verify Version:** Confirm the current version with `status FiniteHilbertTransform` in the julia package manager.
 
@@ -54,7 +49,12 @@ Pkg.instantiate()
 
 [^1]: For detailed instructions, check [here](https://pkgdocs.julialang.org/v1/managing-packages/#Adding-unregistered-packages).
 
-If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
+[^2]: If you are new to `julia`, install the latest version by running this in your terminal: `$ curl -fsSL https://install.julialang.org | sh`. If you are on Windows or run into problems with `curl`-based installation, please visit [this website](https://julialang.org/downloads/).
+
+[^3]: Or at the command line
+    ```bash
+    $ julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
+    ```
 
 Note that if you use this install option you will always need to run codes in the project context by adding the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia`. The library will not be accessible in your global julia context.
 

@@ -1,6 +1,7 @@
 
 # FiniteHilbertTransform.jl
 
+[![Test Builds](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/benchmark.yml/badge.svg)](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/benchmark.yml)
 [![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
 
 **FiniteHilbertTransform.jl** is a Julia package designed to compute the finite version of the Hilbert transformations. This toolbox is inspired by Tricomi's work on the finite Hilbert transform from 1957. In the context of gravitational dynamics, the finite Hilbert transform may be used as a scheme for analytic continuation to the lower half of the complex plane. See [Fouvry & Prunet (2022)](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract), or [Petersen et al. (2024)](https://ui.adsabs.harvard.edu/abs/2023arXiv231110630P/abstract) for details.
