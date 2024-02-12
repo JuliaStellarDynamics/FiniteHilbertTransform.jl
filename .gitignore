@@ -1,3 +1,9 @@
+
+# Manifest is machine-specific
+Manifest.toml
+docs/Manifest.toml
+
+
 data/*
 
 src/Isochrone/*
