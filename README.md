@@ -14,12 +14,10 @@ Install Julia by following the instructions at [julialang.org/downloads/](https:
 To invoke Julia in the Terminal, you need to make sure that the `julia` command-line program is in your `PATH`. 
 See [here](https://julialang.org/downloads/platform/#optional_add_julia_to_path) for detailed instructions.
 
-Once Julia installed, clone the `FiniteHilbertTransform.jl` library and precompile it by running:
-```
-git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
-cd FiniteHilbertTransform.jl
-julia --project=. -e 'using Pkg; Pkg.precompile()'
-```
+Once Julia installed, obtain the `FiniteHilbertTransform.jl` library[^1] and compile it by running:
+    ```
+    julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
+    ```
 
 ---
 ## Quick use test
@@ -28,14 +26,14 @@ An introductory non-trivial example is given in `examples/run_plasma.jl`. This s
 
 If you installed the library using the first (global) install option, just download this example [file](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl) from the github repository.
 
-Run the code with the following command[^1]:
+Run the code with the following command:
 ```
 $ julia /path/to/run_plasma.jl
 ```
 
-This example will first install some required libraries (`Plots`, `ArgParse`). These installations might take a few minutes when first called.
+This example will first install some required libraries (`Plots`, `ArgParse`) as needed. These installations might take a few minutes when first called.
 
-The resulting plot will be created in the same folder as the test code under the name `plasmademo.png`.
+The resulting plot will be created in the same folder where you executed the script, and will be called `plasmademo.png`.
 
 ![`Plasma Demonstration`](examples/plasmademo.png)
 
@@ -63,4 +61,7 @@ Mathieu Roule -  @MathieuRoule - roule@iap.fr
 
 
 
-[^1]: Do not forget the option `--project=/path/to/FiniteHilbertTransform.jl` after `julia` if you installed the library locally.
+[^1]: The library is also easy to uninstall: remove the package from the environment by running
+```
+julia -e 'using Pkg; Pkg.rm("FiniteHilbertTransform");'
+```
