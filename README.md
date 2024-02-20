@@ -14,18 +14,20 @@ Install Julia by following the instructions at [julialang.org/downloads/](https:
 To invoke Julia in the Terminal, you need to make sure that the `julia` command-line program is in your `PATH`. 
 See [here](https://julialang.org/downloads/platform/#optional_add_julia_to_path) for detailed instructions.
 
-Once Julia installed, obtain the `FiniteHilbertTransform.jl` library[^1] and compile it by running:
+Once Julia installed, obtain the `FiniteHilbertTransform.jl` library[^1][21] and compile it by running:
     ```
     julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
     ```
 
 ---
-## Quick use test
+## Quickstart
 
-An introductory non-trivial example is given in `examples/run_plasma.jl`. This script will recreate Figure E1 from [Fouvry & Prunet (2021).](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract)
+An introductory example is given in `examples/run_plasma.jl`. This script will recreate Figure E1 from [Fouvry & Prunet (2021).](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract)
 
-If you installed the library using the first (global) install option, just download this example [file](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl) from the github repository.
-
+Download the file by running:
+```
+wget ttps://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl
+```
 Run the code with the following command:
 ```
 $ julia /path/to/run_plasma.jl
@@ -37,13 +39,19 @@ The resulting plot will be created in the same folder where you executed the scr
 
 ![`Plasma Demonstration`](examples/plasmademo.png)
 
-### Interactive notebooks
+---
+### Interactive notebook
 
 If you prefer interactive Jupyter notebooks, you will need to install `IJulia` following these [instructions](https://github.com/JuliaLang/IJulia.jl).
 
 The interactive introduction example is then given in `examples/run_plasma.ipynb`.
 
-For those who prefer not to install julia locally, we also provide a Google colab version that may be run in the cloud. [See here](https://colab.research.google.com/drive/1p4lX5ot5-kKSnIo1XLFchsiOWGQUxEhR).
+
+---
+### Without installing Julia
+
+For those who prefer not to install julia locally, we also provide a Google colab version[^3] that may be run in the cloud. [See here](https://colab.research.google.com/drive/1p4lX5ot5-kKSnIo1XLFchsiOWGQUxEhR).
+
 
 ---
 ## Documentation and usage
@@ -51,9 +59,9 @@ For those who prefer not to install julia locally, we also provide a Google cola
 To get more familiar with the content of the library and start and design your own use case, you may want to visit the [documentation](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/).
 
 
------------------------------
+----------------------------
 
-### Authors
+## Authors
 
 Mike Petersen -  @michael-petersen - michael.petersen@roe.ac.uk
 
@@ -65,3 +73,7 @@ Mathieu Roule -  @MathieuRoule - roule@iap.fr
 ```
 julia -e 'using Pkg; Pkg.rm("FiniteHilbertTransform");'
 ```
+
+[^2]: By default, packages are added to the default environment at ~/.julia/environments/v1.#. It is however easy to create other, independent, projects. If you want to install the `FiniteHilbertTransform` package in a different/test environment, first create a folder to host the environment files (Project.toml and Manifest.toml which will be created later on). Then, for every command line invoking Julia, use `julia --project=/path/to/my_env` instead of `julia` alone.
+
+[^3]: This notebook is not maintained as a priority. We would recommand you install Julia on your machine to test the library locally.

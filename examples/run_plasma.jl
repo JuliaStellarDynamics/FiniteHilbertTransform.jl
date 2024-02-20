@@ -16,50 +16,78 @@ using FiniteHilbertTransform
 
 
 """
- Pre-computes the needed values of G(u) for the specified plasma model
+Calculate the G(u) function for a plasma: here, a simple Maxwellian.
+see Equation E5 of Fouvry & Prunet (2022)
+
+# Arguments
+- `u::Float64`: The velocity parameter.
+- `qSELF::Float64`: A parameter specific to the plasma.
+- `xmax::Float64`: The maximum value of x.
+
+# Returns
+- `Float64`: The value of G(u) for the given parameters.
+
+# Example
+```julia
+get_G(1.0, 0.5, 10.0)
+```
 """
-function CGFuncPlasma(uNodes::Vector{Float64},
-                      qSELF::Float64,
-                      xmax::Float64)
+function get_G(u::Float64,qSELF::Float64,xmax::Float64)
+    x = u*xmax # Value of the velocity
+    return qSELF/(sqrt(pi))*x*exp(-x^(2)) 
+end
 
 
-    K_u = size(uNodes,1)
-    tabG = zeros(Float64,K_u)
+
+"""
+Pre-compute the values of G(u) for the specified plasma model.
+
+# Arguments
+- `uNodes::Vector{Float64}`: Vector of nodes for which G(u) needs to be computed.
+- `qSELF::Float64`: A parameter specific to the plasma model.
+- `xmax::Float64`: The maximum value of x.
+
+# Returns
+- `tabG::Vector{Float64}`: Vector containing pre-computed values of G(u) for each node.
+
+# Example
+```julia
+CGFuncPlasma([0.1, 0.2, 0.3], 0.5, 10.0)
+```
+"""
+function CGFuncPlasma(uNodes::Vector{Float64}, qSELF::Float64, xmax::Float64)
+    K_u = size(uNodes, 1)
+    tabG = zeros(Float64, K_u)
 
     # Loop over the nodes
-    Threads.@threads for i=1:K_u
-
+    Threads.@threads for i = 1:K_u
         # Current node position
         u_i = uNodes[i]
 
         # Compute the value of G[u_i]
-        tabG[i] = get_G(u_i,qSELF,xmax)
-
+        tabG[i] = get_G(u_i, qSELF, xmax)
     end
 
     return tabG
 end
 
 
-
-#include("../src/Integrate.jl")
-
 """
-the G(u) function for a plasma
-"""
-function get_G(u::Float64,qSELF::Float64,xmax::Float64)
-    x = u*xmax # Value of the velocity
-    return qSELF/(sqrt(pi))*x*exp(-x^(2)) # Returning the value of G(u)
-end
+Compute the values of I-Xi(omg) for a given complex frequency.
 
+# Arguments
+- `omg::Complex{Float64}`: Complex frequency.
+- `taba::Vector{Float64}`: Vector of coefficients a_k(u).
+- `xmax::Float64`: Maximum value of x.
+- `FHT::FiniteHilbertTransform.AbstractFHT`: AbstractFHT structure.
 
+# Returns
+- `IminusXi::Complex{Float64}`: Value of I-Xi(omg).
 
-"""GetLegendreIminusXiPlasma
-
-perform the loop calculation a_k*D_k, after computing D_k
-
-Function that computes the values of I-Xi(omg) for a given complex frequency
-
+# Example
+```julia
+GetLegendreIminusXiPlasma(1.0 + 1.0im, taba, 10.0, FHT)
+```
 """
 function GetLegendreIminusXiPlasma(omg::Complex{Float64},
                                    taba::Vector{Float64},
@@ -93,35 +121,20 @@ end
 
 
 """
-    compute_tabG(uNodes, Gfun)
+Compute coefficients a_k(u) for all values of u by looping over Legendre weights, Legendre polynomials, and G(u) values.
 
-Compute the G function values on the u nodes.
-"""
-function compute_tabG(uNodes::Vector{Float64},Gfun::Function)
+# Arguments
+- `FHT::FiniteHilbertTransform.LegendreFHT`: LegendreFHT structure.
+- `tabG::Vector{Float64}`: Vector of G(u) values.
 
-    K_u = size(uNodes,1)        # Nodes number
-    tabG = zeros(Float64,K_u)   # Values array
+# Returns
+- `taba::Vector{Float64}`: Vector of computed coefficients a_k(u).
+- `warnflag::Int`: Warning flag.
 
-    Threads.@threads for i=1:K_u # Loop over the nodes
-
-        # Current node position
-        u_i = uNodes[i]
-
-        # Compute the value of G[u_i]
-        tabG[i] = Gfun(u_i)
-    end
-
-    return tabG
-end
-
-
-
-"""ComputeALegendre
-
-for all values of u:
-compute a_k(u) by looping over Legendre weights w(u), P_k(u) values, and G(u) values.
-
-parallel or non-parallel options
+# Example
+```julia
+ComputeALegendre(FHT, tabG)
+```
 """
 function ComputeALegendre(FHT::FiniteHilbertTransform.LegendreFHT,tabG::Vector{Float64})
 
@@ -131,10 +144,22 @@ end
 
 
 
-"""ComputeIminusXi
+"""
+Wrapper to parallelize calculations of I-Xi.
 
-wrapper to parallelise calculations of I-Xi
+# Arguments
+- `tabomega::Vector{Complex{Float64}}`: Vector of complex frequencies.
+- `taba::Vector{Float64}`: Vector containing coefficients for integration.
+- `xmax::Float64`: The maximum value of x.
+- `struct_tabLeg::Vector{FiniteHilbertTransform.LegendreFHT}`: Vector of LegendreFHT structures.
 
+# Returns
+- `tabIminusXi::Vector{Complex{Float64}}`: Vector containing the values of det[I-Xi] for each frequency.
+
+# Example
+```julia
+ComputeIminusXi([1.0+1.0im, 2.0+2.0im], [0.1, 0.2, 0.3], 10.0, [struct_tabLeg_1, struct_tabLeg_2])
+```
 """
 function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
                          taba::Vector{Float64},
@@ -166,28 +191,78 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
 
 end
 
-"""setup_legendre_integration
-
-build various tables for integrating the plasma problem with Legendre
 
 """
-function setup_legendre_integration(Ku::Int64,qself::Float64,xmax::Float64,PARALLEL::Bool=false)
+Setup various tables for integrating the plasma problem with Legendre.
 
-    # Filling in the arrays used in the G-L quadrature (src/Precompute.jl)
+# Arguments
+- `Ku::Int64`: Integer specifying the number of Legendre nodes.
+- `qself::Float64`: A parameter specific to the plasma problem.
+- `xmax::Float64`: The maximum value of x.
+- `PARALLEL::Bool`: Boolean indicating whether to enable parallel computation. Defaults to `false`.
+
+# Returns
+- `taba::Vector{Float64}`: Vector containing coefficients for integration.
+- `FHTlist::Vector{FiniteHilbertTransform.LegendreFHT}`: Vector containing LegendreFHT structures for integration.
+
+# Example
+```julia
+setup_legendre_integration(10, 0.5, 100.0, true)
+```
+"""
+function setup_legendre_integration(Ku::Int64, qself::Float64, xmax::Float64, PARALLEL::Bool=false)
+    # Filling in the arrays used in the G-L quadrature
     FHT = FiniteHilbertTransform.LegendreFHT(Ku)
 
-    # compute the function G(u)
-    tabG = CGFuncPlasma(FHT.tabu,qself,xmax)
+    # Compute the function G(u)
+    tabG = CGFuncPlasma(FHT.tabu, qself, xmax)
 
-    # compute the coefficients for integration
-    taba,warnflag = ComputeALegendre(FHT,tabG)
+    # Compute the coefficients for integration
+    taba, warnflag = ComputeALegendre(FHT, tabG)
 
-    # set up the table for integration
-    FHTlist = [deepcopy(FHT) for k=1:Threads.nthreads()]
+    # Set up the table for integration
+    FHTlist = [deepcopy(FHT) for k = 1:Threads.nthreads()]
 
-    return taba,FHTlist
-
+    return taba, FHTlist
 end
+
+
+
+"""
+    get_tabomega(tabOmega::Vector{Float64}, tabEta::Vector{Float64})
+
+Constructs the table of omega values (complex frequency) from the specified real and imaginary components.
+
+# Arguments
+- `tabOmega::Vector{Float64}`: Vector containing the real components of frequency values.
+- `tabEta::Vector{Float64}`: Vector containing the imaginary components of frequency values.
+
+# Returns
+- `tabomega::Vector{Complex{Float64}}`: Vector of complex frequency values.
+
+"""
+function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
+
+    nOmega = size(tabOmega,1)
+    nEta   = size(tabEta,1)
+    nomega = nOmega*nEta
+
+    tabomega = zeros(Complex{Float64},nomega)
+    
+    icount = 1 
+
+    for iOmega=1:nOmega # Loop over the real part of the frequency
+        for iEta=1:nEta # Loop over the complex part of the frequency
+            tabomega[icount] = tabOmega[iOmega] + im*tabEta[iEta] # Fill the current value of the complex frequency
+            icount += 1 # Update the counter
+        end
+    end
+
+    return tabomega
+end
+
+
+
 
 using Plots
 using ArgParse
@@ -270,42 +345,6 @@ function print_arguments(parsed_args)
     for (arg,val) in parsed_args
         println("  $arg  =>  $val")
     end
-end
-
-
-
-
-"""
-    get_tabomega(tabOmega::Vector{Float64}, tabEta::Vector{Float64})
-
-Constructs the table of omega values (complex frequency) from the specified real and imaginary components.
-
-# Arguments
-- `tabOmega::Vector{Float64}`: Vector containing the real components of frequency values.
-- `tabEta::Vector{Float64}`: Vector containing the imaginary components of frequency values.
-
-# Returns
-- `tabomega::Vector{Complex{Float64}}`: Vector of complex frequency values.
-
-"""
-function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
-
-    nOmega = size(tabOmega,1)
-    nEta   = size(tabEta,1)
-    nomega = nOmega*nEta
-
-    tabomega = zeros(Complex{Float64},nomega)
-    
-    icount = 1 
-
-    for iOmega=1:nOmega # Loop over the real part of the frequency
-        for iEta=1:nEta # Loop over the complex part of the frequency
-            tabomega[icount] = tabOmega[iOmega] + im*tabEta[iEta] # Fill the current value of the complex frequency
-            icount += 1 # Update the counter
-        end
-    end
-
-    return tabomega
 end
 
 
