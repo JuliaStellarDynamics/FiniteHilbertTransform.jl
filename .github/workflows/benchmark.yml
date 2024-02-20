@@ -1,7 +1,6 @@
 
 name: Benchmark
 on:
-  push:
 
 jobs:
   Benchmark:
