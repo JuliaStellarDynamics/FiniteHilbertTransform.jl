@@ -11,6 +11,13 @@ Once Julia installed, obtain the `FiniteHilbertTransform.jl` library[^1][^2] and
     julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
     ```
 
+[^1]: The library is also easy to uninstall: remove the package from the environment by running
+```
+julia -e 'using Pkg; Pkg.rm("FiniteHilbertTransform");'
+```
+
+[^2]: By default, packages are added to the default environment at ~/.julia/environments/v1.#. It is however easy to create other, independent, projects. If you want to install the `FiniteHilbertTransform` package in a different/test environment, first create a folder to host the environment files (Project.toml and Manifest.toml which will be created later on). Then, for every command line invoking Julia, use `julia --project=/path/to/my_env` instead of `julia` alone.
+
 ---
 ## From source
 
@@ -28,9 +35,6 @@ Pkg.instantiate()
 ```
 
 
-[^1]: The library is also easy to uninstall: remove the package from the environment by running
-```
-julia -e 'using Pkg; Pkg.rm("FiniteHilbertTransform");'
-```
+    
 
-[^2]: By default, packages are added to the default environment at ~/.julia/environments/v1.#. It is however easy to create other, independent, projects. If you want to install the `FiniteHilbertTransform` package in a different/test environment, first create a folder to host the environment files (Project.toml and Manifest.toml which will be created later on). Then, for every command line invoking Julia, use `julia --project=/path/to/my_env` instead of `julia` alone.
+
