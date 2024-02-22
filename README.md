@@ -26,7 +26,7 @@ An introductory example is given in `examples/run_plasma.jl`. This script will r
 
 Download the file by running:
 ```
-wget ttps://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl
+wget https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/blob/main/examples/run_plasma.jl
 ```
 Run the code with the following command:
 ```
