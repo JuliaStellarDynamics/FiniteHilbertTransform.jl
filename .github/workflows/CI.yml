@@ -1,5 +1,5 @@
 
-name: Benchmark
+name: CI
 on:
 
 jobs:
@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
-          version: 1.7.2
+          version: 1.6.7
           arch: x64
       - name: instantiate environment
         run: |
@@ -18,13 +18,17 @@ jobs:
               using Pkg
               Pkg.add("BenchmarkTools")
               Pkg.add("ArgParse")
-              Pkg.add(url="https://github.com/michael-petersen/OrbitalElements.jl.git")
               Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")'
             ls
             julia --project=fht -e '
               using Pkg
               Pkg.develop(PackageSpec(path="/home/runner/work/FiniteHilbertTransform.jl/FiniteHilbertTransform.jl"))'
-      - name: benchmark
-        run: |
-            julia --project=fht examples/run_basetests.jl
-            julia --project=fht examples/run_plasma.jl
+      - uses: julia-actions/julia-runtest@v1
+        with:
+          project: fht
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          project: fht
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info
