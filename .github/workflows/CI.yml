@@ -16,10 +16,9 @@ jobs:
         run: |
             julia --project=fht -e '
               using Pkg
-              Pkg.add("BenchmarkTools")
-              Pkg.add("ArgParse")
               Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")
-              Pkg.activate()'
+              Pkg.activate()
+              test FiniteHilbertTransform'
       - uses: julia-actions/julia-runtest@v1
         with:
           project: fht
