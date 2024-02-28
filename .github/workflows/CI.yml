@@ -18,6 +18,7 @@ jobs:
               using Pkg
               Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")
               Pkg.activate()'
+      - name: run test
         run : |
             julia --project=fht -e 'test FiniteHilbertTransform'
       - uses: julia-actions/julia-runtest@v1
