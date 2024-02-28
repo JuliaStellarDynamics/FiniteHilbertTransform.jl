@@ -4,7 +4,7 @@ on:
   - push
 
 jobs:
-  CI:
+  Continuous Integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +18,8 @@ jobs:
               using Pkg
               Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")
               Pkg.activate()'
-      - name: run test
-        run : |
-            julia --project=fht -e 'test FiniteHilbertTransform'
+            julia --project=fht test/runtests.jl
+      - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
           project: fht
