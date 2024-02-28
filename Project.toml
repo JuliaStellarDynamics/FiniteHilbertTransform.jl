@@ -11,7 +11,12 @@ IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 JLLWrappers = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Quadmath = "be4d8f0f-7fa4-5f49-b795-2f01399ab2dd"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 julia = "1.6.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
