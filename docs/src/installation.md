@@ -7,11 +7,13 @@ To invoke Julia in the Terminal, you need to make sure that the `julia` command-
 See [here](https://julialang.org/downloads/platform/#optional_add_julia_to_path) for detailed instructions.
 
 Once Julia installed, obtain the `FiniteHilbertTransform.jl` library and compile it by running:
-    ```
-    julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
-    ```
+
+```
+julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
+```
 
 The library is also easy to uninstall: remove the package from the environment by running
+
 ```
 julia -e 'using Pkg; Pkg.rm("FiniteHilbertTransform");'
 ```
@@ -22,6 +24,7 @@ By default, packages are added to the default environment at ~/.julia/environmen
 ## From source
 
 Alternately, you may clone the repository wherever you want and create a local environment (or project) by running:
+
 ```
 $ git clone https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git
 $ cd FiniteHilbertTransform.jl
@@ -29,6 +32,7 @@ $ julia --project=. -e 'using Pkg; Pkg.precompile()'
 ```
 
 Note: If you are using a new Julia interpreter, you might need to download additional packages. Use the following command:
+
 ```julia
 using(Pkg)
 Pkg.instantiate()

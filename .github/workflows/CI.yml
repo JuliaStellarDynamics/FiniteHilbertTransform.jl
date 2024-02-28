@@ -1,0 +1,30 @@
+
+name: CI
+on:
+  - push
+
+jobs:
+  Benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: 1.6.7
+          arch: x64
+      - name: instantiate environment
+        run: |
+            julia --project=fht -e '
+              using Pkg
+              Pkg.add("BenchmarkTools")
+              Pkg.add("ArgParse")
+              Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")'
+      - uses: julia-actions/julia-runtest@v1
+        with:
+          project: fht
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          project: fht
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info
