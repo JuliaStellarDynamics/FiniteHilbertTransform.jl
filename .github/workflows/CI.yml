@@ -14,16 +14,11 @@ jobs:
           arch: x64
       - name: instantiate environment
         run: |
-            pwd
             julia --project=fht -e '
               using Pkg
               Pkg.add("BenchmarkTools")
               Pkg.add("ArgParse")
-              Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")'
-            ls
-            julia --project=fht -e '
-              using Pkg
-              Pkg.develop(PackageSpec(path="/home/runner/work/FiniteHilbertTransform.jl/FiniteHilbertTransform.jl"))'
+              Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git#unittest")'
       - uses: julia-actions/julia-runtest@v1
         with:
           project: fht
