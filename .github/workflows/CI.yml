@@ -18,7 +18,8 @@ jobs:
               using Pkg
               Pkg.add("BenchmarkTools")
               Pkg.add("ArgParse")
-              Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")'
+              Pkg.add(url="https://github.com/michael-petersen/FiniteHilbertTransform.jl.git")
+              Pkg.activate()'
       - uses: julia-actions/julia-runtest@v1
         with:
           project: fht
