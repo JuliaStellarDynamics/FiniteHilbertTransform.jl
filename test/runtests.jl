@@ -5,11 +5,13 @@
 using FiniteHilbertTransform
 using Test
 
+# parameters common to all tests
 Ku = 10
+tol = 1e-10
+
 tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabGLquad(Ku)
 FHT = FiniteHilbertTransform.LegendreFHT(Ku)
 
-tol = 1e-10
 
 @testset "Legendre Initialisation" begin
     @test (@allocated tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabGLquad(Ku)) < 5000
@@ -23,7 +25,7 @@ end
 ϖ = 0.02 + 0.02im
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
-@testset "Unstable Frequency" begin
+@testset "Legendre Unstable Frequency" begin
     @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) ≈ -0.0399893282162609 atol=tol
@@ -38,7 +40,7 @@ end
 ϖ = 0.00 + 0.00im
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
-@testset "Neutral Frequency" begin
+@testset "Legendre Neutral Frequency" begin
     @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) == 0.0
@@ -53,7 +55,7 @@ end
 ϖ = 0.02 - 0.02im
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
-@testset "Damped Frequency" begin
+@testset "Legendre Damped Frequency" begin
     @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) ≈ -0.0399893282162609 atol=tol
@@ -63,4 +65,26 @@ FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test real(FHT.tabPLeg[1]) == 1.0
     @test imag(FHT.tabPLeg[1]) == 0.0
 end
+
+# check the quadrature approximation
+# by checking with all ones, we know the analytic value
+@testset "Legendre Quadrature" begin
+    # the quadrature values
+    Gvals = ones(FHT.Ku)
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][1] ≈ 1.0 atol=tol
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][2] ≈ 0.0 atol=tol
+    # the flag for a warning
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[2] == 0
+    # now add a NaN
+    Gvals[1] = NaN
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][1] < 1.0
+    # the flag for a warning
+    #@test FiniteHilbertTransform.GetaXi(FHT,Gvals)[2] == 1
+end
+
+
+
+
+# begin Chebyshev tests
+FHT = FiniteHilbertTransform.ChebyshevFHT(Ku)
 

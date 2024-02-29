@@ -43,7 +43,7 @@ function tabCquad(Ku::Int64)
     # only extra normalisation for Chebyshev comes from taking the FFT
     INVcCquad = ones(Ku) ./ Ku
 
-    # Computing the values of the Legendre polynomials used in the G-L quadrature.
+    # Computing the values of the Chebyshev polynomials used in the Chebyshev quadrature.
     PCquad    = getTu(Ku,tabuCquad)
 
     return tabuCquad,tabwCquad,INVcCquad,PCquad

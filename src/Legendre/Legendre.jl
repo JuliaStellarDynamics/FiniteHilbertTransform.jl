@@ -422,41 +422,58 @@ GetaXi!(FHT, tabGXi, res, warnflag)
 ```
 """
 function GetaXi!(FHT::LegendreFHT,
-                 tabGXi::AbstractVector{Float64},
-                 res::Vector{Float64},warnflag::Vector{Float64})
+                 tabG::AbstractVector{Float64},
+                 res::Vector{Float64},warnflag::Int64)
 
-    # Loop over the Legendre functions
-    for k=1:FHT.Ku
+    # check vector length for agreement before proceeding
+    @assert length(tabG) == FHT.Ku "FiniteHilbertTransform.Legendre.GetaXi!: tabG length is not the same as Ku."
 
-        res[k] = 0.0
-        warnflag[k] = 0.0
+    # check vector for nan or inf: if there are, loop through and zero out.
+    # see speed discussion here: we might be able to do even better
+    # https://discourse.julialang.org/t/fastest-way-to-check-for-inf-or-nan-in-an-array/76954/27
+    if 1==0#isfinite(sum(tabG))
 
-        for i=1:FHT.Ku # Loop over the G-L nodes
+        # Loop over the Legendre functions
+        for k=1:FHT.Ku
 
-            Gval = tabGXi[i] # Current value of G[u_i]
+            # do the inner sum over u as a vector
 
-            # check for NaN contribution: skip this contribution in that case
-            if isnan(Gval)
-                warnflag[k] += 1
-                continue
-            end
+            # weight * G(u) * P_k(u)
+            res[k] = sum(FHT.tabw .* tabG .* FHT.tabP[k]) # Update of the sum
 
-            # check for INF contribution: skip the contribution in that case
-            if isinf(Gval)
-                warnflag[k] += 1
-                continue
-            end
+            res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
 
-            # Current weight
-            w = FHT.tabw[i]
-
-            # Current value of P_k
-            P = FHT.tabP[k,i]
-
-            res[k] += w*Gval*P # Update of the sum
         end
 
-        res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
+    else
+
+        # Loop over the Legendre functions
+        for k=1:FHT.Ku
+
+            res[k] = 0.0
+
+            for i=1:FHT.Ku # Loop over the G-L nodes
+
+                Gval = tabG[i] # Current value of G[u_i]
+
+                # check for NaN contribution: skip this contribution in that case
+                if isnan(Gval) || isinf(Gval)
+                    warnflag += 1
+                    continue
+                end
+
+                # Current weight
+                w = FHT.tabw[i]
+
+                # Current value of P_k
+                P = FHT.tabP[k,i]
+
+                res[k] += w*Gval*P # Update of the sum
+            end
+
+            res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
+
+        end
 
     end
 
@@ -492,7 +509,7 @@ function GetaXi(FHT::LegendreFHT,
                 tabGXi::Array{Float64})
 
     # start with no warnings
-    warnflag = zeros(FHT.Ku)
+    warnflag = 0
 
     # start with zero contribution
     res = zeros(FHT.Ku)

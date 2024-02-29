@@ -382,18 +382,6 @@ function main()
     taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
     @time tabIminusXi = ComputeIminusXi(tabomega,taba,xmax,struct_tabLeg)
 
-
-    # Prefix of the directory where the files are dumped
-    prefixnamefile = "data/"
-
-    # Name of the file where the data is dumped
-    namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
-               "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5"
-
-    # you can save the data by uncommenting this:
-    #print("Dumping the data | ")
-    #@time FiniteHilbertTransform.dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
-
     epsilon_real = reshape(real.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
     epsilon_imag = reshape(imag.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
     epsilon = abs.(epsilon_real .+ im * epsilon_imag)
