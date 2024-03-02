@@ -75,6 +75,14 @@ end
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][2] ≈ 0.0 atol=tol
     # the flag for a warning
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[2] == 0
+    #
+    ϖ = 0.02 + 0.02im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.0399893282162609 atol=tol 
+    ϖ = 0.02 + 0.00im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.0400053346136993 atol=tol 
+    ϖ = 0.02 - 0.02im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.0399893282162609 atol=tol 
+    #
     # now add a NaN
     Gvals[1] = NaN
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][1] < 1.0
@@ -83,8 +91,32 @@ end
 end
 
 
-
-
 # begin Chebyshev tests
 FHT = FiniteHilbertTransform.ChebyshevFHT(Ku)
+tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabCquad(Ku)
 
+@testset "Chebyshev Initialisation" begin
+    @test (@allocated tabu,tabw,tabc,tabP = FiniteHilbertTransform.tabCquad(Ku)) < 5000
+    @test (@allocated FHT = FiniteHilbertTransform.ChebyshevFHT(Ku)) < 5000
+    @test FHT.Ku == 10
+    @test FHT.tabu[1] ≈ 0.9876883405951378 atol=tol
+    @test FHT.tabw[1] == 1.0
+end
+
+
+@testset "Chebyshev Unstable Frequency" begin
+    ϖ = 0.02 + 0.02im
+    Gvals = ones(FHT.Ku)
+    FiniteHilbertTransform.GetaXi(FHT,Gvals)
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][1] ≈ 1.2784906442999322 atol=tol
+    @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][2] == 0.0
+    @test real(FiniteHilbertTransform.get_sumT(ϖ,FHT.taba)) ≈ 0.10271294847884978 atol=tol
+    @test real(FiniteHilbertTransform.get_sumU(ϖ,FHT.taba)) ≈ 3.4519844421597705 atol = tol
+    @test real(FiniteHilbertTransform.GettabD!(ϖ,FHT)) ≈ -0.09041331659821551 atol = tol
+    ϖ = 0.02 + 0.02im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.0904133165982155 atol=tol 
+    ϖ = 0.02 + 0.00im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.101538304553634 atol=tol 
+    ϖ = 0.02 - 0.02im
+    @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.1150125803594841 atol=tol 
+end

@@ -72,53 +72,6 @@ function CGFuncPlasma(uNodes::Vector{Float64}, qSELF::Float64, xmax::Float64)
 end
 
 
-"""
-Compute the values of I-Xi(omg) for a given complex frequency.
-
-# Arguments
-- `omg::Complex{Float64}`: Complex frequency.
-- `taba::Vector{Float64}`: Vector of coefficients a_k(u).
-- `xmax::Float64`: Maximum value of x.
-- `FHT::FiniteHilbertTransform.AbstractFHT`: AbstractFHT structure.
-
-# Returns
-- `IminusXi::Complex{Float64}`: Value of I-Xi(omg).
-
-# Example
-```julia
-GetLegendreIminusXiPlasma(1.0 + 1.0im, taba, 10.0, FHT)
-```
-"""
-function GetLegendreIminusXiPlasma(omg::Complex{Float64},
-                                   taba::Vector{Float64},
-                                   xmax::Float64,
-                                   FHT::FiniteHilbertTransform.AbstractFHT)
-
-
-    # Rescale the COMPLEX frequency
-    K_u = size(taba,1)
-
-    varpi = omg/xmax
-
-    # compute the Hilbert-transformed Legendre functions
-    FiniteHilbertTransform.GettabD!(varpi,FHT)
-
-    xi = 0.0 + 0.0*im # Initialise xi
-
-    # loop over the Legendre functions
-    for k=1:(K_u)
-
-        # add the contribution
-        xi += taba[k]*FHT.tabDLeg[k]
-    end
-
-    # compute 1.0 - xi
-    IminusXi = 1.0 - xi
-
-    return IminusXi # Output
-end
-
-
 
 """
 Compute coefficients a_k(u) for all values of u by looping over Legendre weights, Legendre polynomials, and G(u) values.
@@ -180,7 +133,7 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
         thr = Threads.threadid()
 
         # compute I-Xi(omg) using the parallel containers
-        val = GetLegendreIminusXiPlasma(tabomega[iomega],taba,xmax,struct_tabLeg[thr])
+        val = FiniteHilbertTransform.GetIminusXi(tabomega[iomega]/xmax,taba,struct_tabLeg[thr])
 
         # fill in tabIminusXi
         tabIminusXi[iomega] = val

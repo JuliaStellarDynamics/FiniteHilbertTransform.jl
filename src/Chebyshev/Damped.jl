@@ -1,9 +1,8 @@
 ##################################################
 # Response matrix in the DAMPED case
 ##################################################
-function get_Xi_DAMPED(omg::ComplexF64,
-                       taba::Vector{Float64})
-    sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
+function get_Xi_DAMPED(omg::ComplexF64,struct_tabCheb::ChebyshevFHT)
+    sumT, sumU = get_sumT(omg,struct_tabCheb.taba), get_sumU(omg,struct_tabCheb.taba) # Computing the needed sum
     #####
     Xi = -sumT # Starting to compute the expression
     #####
@@ -20,6 +19,7 @@ function get_Xi_DAMPED(omg::ComplexF64,
     return Xi # Output
 end
 
+"""
 function get_Xi_array(omg::ComplexF64,
                        taba::Vector{Float64})
     sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
@@ -38,3 +38,4 @@ function get_Xi_array(omg::ComplexF64,
     #####
     return Xi # Output
 end
+"""

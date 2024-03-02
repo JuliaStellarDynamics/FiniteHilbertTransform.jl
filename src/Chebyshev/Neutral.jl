@@ -3,9 +3,8 @@
 # ATTENTION, we do not enforce for omg
 # to have a vanishing imaginary part
 ##################################################
-function get_Xi_NEUTRAL(omg::ComplexF64,
-                         taba::Vector{Float64})
-    sumT, sumU = get_sumT(omg,taba), get_sumU(omg,taba) # Computing the needed sum
+function get_Xi_NEUTRAL(omg::ComplexF64,struct_tabCheb::ChebyshevFHT)
+    sumT, sumU = get_sumT(omg,struct_tabCheb.taba), get_sumU(omg,struct_tabCheb.taba) # Computing the needed sum
     #####
     Xi = -sumT # Starting to compute the expression
     #####

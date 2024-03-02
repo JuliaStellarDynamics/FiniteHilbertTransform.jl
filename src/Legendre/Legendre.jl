@@ -518,3 +518,46 @@ function GetaXi(FHT::LegendreFHT,
 
     return res,warnflag
 end
+
+
+"""
+Compute the values of I-Xi(omg) for a given complex frequency.
+
+# Arguments
+- `omg::Complex{Float64}`: Complex frequency.
+- `taba::Vector{Float64}`: Vector of coefficients a_k(u).
+- `xmax::Float64`: Maximum value of x.
+- `FHT::FiniteHilbertTransform.AbstractFHT`: AbstractFHT structure.
+
+# Returns
+- `IminusXi::Complex{Float64}`: Value of I-Xi(omg).
+
+# Example
+```julia
+GetLegendreIminusXiPlasma(1.0 + 1.0im, taba, 10.0, FHT)
+```
+"""
+function GetIminusXi(ϖ::Complex{Float64},taba::Vector{Float64},FHT::LegendreFHT)
+
+
+    # Rescale the COMPLEX frequency
+    K_u = size(taba,1)
+
+    # compute the Hilbert-transformed Legendre functions
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+
+    xi = 0.0 + 0.0*im # Initialise xi
+
+    # loop over the Legendre functions
+    for k=1:(K_u)
+
+        # add the contribution
+        xi += taba[k]*FHT.tabDLeg[k]
+    end
+
+    # compute 1.0 - xi
+    IminusXi = 1.0 - xi
+
+    return IminusXi # Output
+end
+
