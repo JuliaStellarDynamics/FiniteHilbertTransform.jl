@@ -190,7 +190,8 @@ include("Damped.jl")
 
 
 function GetaXi!(FHT::ChebyshevFHT,
-                 tabGXi::AbstractVector{Float64})
+                 tabGXi::AbstractVector{Float64},
+                 res::Vector{Float64},warnflag::Int64)
 
      # Perfoming the discrete sine transform
      taba_temp = FFTW.r2r(tabGXi,FFTW.RODFT10,1)
@@ -198,7 +199,23 @@ function GetaXi!(FHT::ChebyshevFHT,
      for i=1:FHT.Ku
         FHT.taba[i] = taba_temp[i] / FHT.Ku
      end
- end
+
+     return FHT.taba,warnflag
+ 
+end
+
+function GetaXi!(FHT::ChebyshevFHT,
+    tabGXi::AbstractVector{Float64},
+    res::Vector{Float64},warnflag::Vector{Float64})
+
+    println("FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer.")
+
+    res,warnval = GetaXi!(FHT,tabG,res,0)
+    warnflag[1] = warnval
+
+    return res,warnflag
+
+end
 
 """
 
@@ -213,7 +230,7 @@ function GetaXi(FHT::ChebyshevFHT,
 
     res = zeros(Float64,FHT.Ku)
 
-    GetaXi!(FHT,tabGXi)
+    GetaXi!(FHT,tabGXi,res,warnflag)
 
     return FHT.taba,warnflag
 

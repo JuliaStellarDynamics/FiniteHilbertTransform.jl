@@ -1,7 +1,7 @@
 name = "FiniteHilbertTransform"
 uuid = "68cdf181-988b-4042-8999-0b9541c1c3c2"
 authors = ["Mike Petersen <petersen@iap.fr>", "Mathieu Roule <roule@iap.fr>"]
-version = "0.10.2"
+version = "1.0.0dev-0"
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"

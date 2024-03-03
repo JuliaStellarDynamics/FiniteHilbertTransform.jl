@@ -108,6 +108,8 @@ omg = 1.0 + 0.5im
 GettabD!(omg, tabLeg, verbose=2)
 ```
 
+@IMPROVE, verbose creates allocations.
+
 """
 function GettabD!(omg::ComplexF64,
                   struct_tabLeg::LegendreFHT;
@@ -481,6 +483,20 @@ function GetaXi!(FHT::LegendreFHT,
 
 end
 
+"""compatibility signature"""
+function GetaXi!(FHT::LegendreFHT,
+    tabG::AbstractVector{Float64},
+    res::Vector{Float64},warnflag::Vector{Float64})
+
+    println("FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer.")
+
+    res,warnval = GetaXi!(FHT,tabG,res,0)
+    warnflag[1] = warnval
+
+    return res,warnflag
+
+end
+
 
 
 """
@@ -512,7 +528,7 @@ function GetaXi(FHT::LegendreFHT,
     warnflag = 0
 
     # start with zero contribution
-    res = zeros(FHT.Ku)
+    res = zeros(Float64,FHT.Ku)
 
     GetaXi!(FHT,tabGXi,res,warnflag)
 

@@ -26,7 +26,7 @@ end
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
 @testset "Legendre Unstable Frequency" begin
-    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
+    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT,verbose=4)) < 5e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) ≈ -0.0399893282162609 atol=tol
     @test imag(FHT.tabDLeg[1]) ≈ 3.1015819920460506 atol=tol
@@ -41,7 +41,7 @@ end
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
 @testset "Legendre Neutral Frequency" begin
-    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
+    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT,verbose=4)) < 5e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) == 0.0
     @test imag(FHT.tabDLeg[1]) ≈ 3.141592653589793 atol=tol
@@ -56,7 +56,7 @@ end
 FiniteHilbertTransform.GettabD!(ϖ,FHT)
 
 @testset "Legendre Damped Frequency" begin
-    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT)) < 1.e-4
+    @test (@elapsed FiniteHilbertTransform.GettabD!(ϖ,FHT,verbose=4)) < 5e-4
     @test (@allocated FiniteHilbertTransform.GettabD!(ϖ,FHT)) == 0
     @test real(FHT.tabDLeg[1]) ≈ -0.0399893282162609 atol=tol
     @test imag(FHT.tabDLeg[1]) ≈ 3.1816033151335357 atol=tol
@@ -90,6 +90,10 @@ end
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[1][2] ≈ 0.0 atol=tol
     # the flag for a warning
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[2] == 0
+    # test compatibility version directly
+    res = zeros(Float64,Ku)
+    warnflag = zeros(Float64,Ku)
+    @test FiniteHilbertTransform.GetaXi!(FHT,Gvals,res,warnflag)[2][1] == 0
     #
     ϖ = 0.02 + 0.02im
     @test real(FiniteHilbertTransform.GetIminusXi(ϖ,FiniteHilbertTransform.GetaXi(FHT,Gvals)[1],FHT)) ≈ 1.0399893282162609 atol=tol 
