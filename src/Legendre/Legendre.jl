@@ -117,26 +117,26 @@ function GettabD!(omg::ComplexF64,
 
     # check the imaginary sign. if negative, use damped integration
     if (imag(omg) < 0.0)
-        if verbose > 2
-            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using DAMPED Legendre integration.")
-        end
+        #if verbose > 2
+        #    println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using DAMPED Legendre integration.")
+        #end
 
         tabLeg!_DAMPED(omg,struct_tabLeg)
 
     # if exactly zero, use neutral mode calculation
     elseif (imag(omg) == 0.0)
-        if verbose > 2
-            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using NEUTRAL Legendre integration.")
-        end
+        #if verbose > 2
+        #    println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using NEUTRAL Legendre integration.")
+        #end
 
         tabLeg!_NEUTRAL(omg,struct_tabLeg)
 
     # by default, use unstable integration
     else
 
-        if verbose > 2
-            println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using UNSTABLE Legendre integration.")
-        end
+        #if verbose > 2
+        #    println("FiniteHilbertTransform.Legendre.get_tabLeg!: Using UNSTABLE Legendre integration.")
+        #end
 
         tabLeg!_UNSTABLE(omg,struct_tabLeg)
     end

@@ -66,7 +66,10 @@ FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test imag(FHT.tabPLeg[1]) == 0.0
 end
 
-@testset "Legendre Damped Frequency: Heaviside checks" begin
+@testset "Legendre Damped Frequency: Recurrence and Heaviside checks" begin
+    ϖ = 0.99 - 0.5im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ -1.411690420739939 atol=tol
     ϖ = 0.99 - 0.02im
     FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test real(FHT.tabDLeg[1]) ≈ -4.48863636973214 atol=tol
@@ -76,6 +79,15 @@ end
     ϖ = 1.01 - 0.02im
     FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test real(FHT.tabDLeg[1]) ≈ -4.498635453116724 atol=tol
+    ϖ = 1.0 - 0.00im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) == 0.0 # verify this?
+    ϖ = 1.01 - 0.00im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ -5.303304908059075 atol=tol
+    ϖ = -1.0 - 0.02im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ 4.605220183488258 atol=tol
     ϖ = -1.01 - 0.02im
     FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test real(FHT.tabDLeg[1]) ≈ 4.498635453116724 atol=tol
