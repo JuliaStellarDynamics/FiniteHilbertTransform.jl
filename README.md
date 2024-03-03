@@ -2,9 +2,9 @@
 # FiniteHilbertTransform.jl
 
 [![Test Builds](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/CI.yml)
-[![codecov](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl/coverage.svg)](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl)
+[![codecov](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl/graph/badge.svg?token=LO51PVUTU1)](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl)
 [![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
-[![image](https://img.shields.io/badge/julia-stable-blue)](https://github.com/JuliaStellarDynamics/OrbitalElements.jl/actions/workflows/devCI.yml)
+[![image](https://img.shields.io/badge/julia-stable-blue)](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/CI.yml)
 [![image](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/JuliaStellarDynamics/OrbitalElements.jl/blob/v2.0/LICENSE)
 [![image](http://img.shields.io/badge/DOI-10.48550/arXiv.2311.10630-blue.svg)](http://dx.doi.org/10.48550/arXiv.2311.10630)
 
