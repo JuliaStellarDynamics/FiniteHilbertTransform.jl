@@ -72,53 +72,6 @@ function CGFuncPlasma(uNodes::Vector{Float64}, qSELF::Float64, xmax::Float64)
 end
 
 
-"""
-Compute the values of I-Xi(omg) for a given complex frequency.
-
-# Arguments
-- `omg::Complex{Float64}`: Complex frequency.
-- `taba::Vector{Float64}`: Vector of coefficients a_k(u).
-- `xmax::Float64`: Maximum value of x.
-- `FHT::FiniteHilbertTransform.AbstractFHT`: AbstractFHT structure.
-
-# Returns
-- `IminusXi::Complex{Float64}`: Value of I-Xi(omg).
-
-# Example
-```julia
-GetLegendreIminusXiPlasma(1.0 + 1.0im, taba, 10.0, FHT)
-```
-"""
-function GetLegendreIminusXiPlasma(omg::Complex{Float64},
-                                   taba::Vector{Float64},
-                                   xmax::Float64,
-                                   FHT::FiniteHilbertTransform.AbstractFHT)
-
-
-    # Rescale the COMPLEX frequency
-    K_u = size(taba,1)
-
-    varpi = omg/xmax
-
-    # compute the Hilbert-transformed Legendre functions
-    FiniteHilbertTransform.GettabD!(varpi,FHT)
-
-    xi = 0.0 + 0.0*im # Initialise xi
-
-    # loop over the Legendre functions
-    for k=1:(K_u)
-
-        # add the contribution
-        xi += taba[k]*FHT.tabDLeg[k]
-    end
-
-    # compute 1.0 - xi
-    IminusXi = 1.0 - xi
-
-    return IminusXi # Output
-end
-
-
 
 """
 Compute coefficients a_k(u) for all values of u by looping over Legendre weights, Legendre polynomials, and G(u) values.
@@ -136,7 +89,7 @@ Compute coefficients a_k(u) for all values of u by looping over Legendre weights
 ComputeALegendre(FHT, tabG)
 ```
 """
-function ComputeALegendre(FHT::FiniteHilbertTransform.LegendreFHT,tabG::Vector{Float64})
+function ComputeA(FHT::FiniteHilbertTransform.AbstractFHT,tabG::Vector{Float64})
 
     taba, warnflag = FiniteHilbertTransform.GetaXi(FHT,tabG)
 
@@ -164,7 +117,7 @@ ComputeIminusXi([1.0+1.0im, 2.0+2.0im], [0.1, 0.2, 0.3], 10.0, [struct_tabLeg_1,
 function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
                          taba::Vector{Float64},
                          xmax::Float64,
-                         struct_tabLeg::Vector{FiniteHilbertTransform.LegendreFHT})
+                         struct_tabFHT)
 
     # get constants
     K_u    = size(taba,1)
@@ -180,7 +133,7 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
         thr = Threads.threadid()
 
         # compute I-Xi(omg) using the parallel containers
-        val = GetLegendreIminusXiPlasma(tabomega[iomega],taba,xmax,struct_tabLeg[thr])
+        val = FiniteHilbertTransform.GetIminusXi(tabomega[iomega]/xmax,taba,struct_tabFHT[thr])
 
         # fill in tabIminusXi
         tabIminusXi[iomega] = val
@@ -218,13 +171,32 @@ function setup_legendre_integration(Ku::Int64, qself::Float64, xmax::Float64, PA
     tabG = CGFuncPlasma(FHT.tabu, qself, xmax)
 
     # Compute the coefficients for integration
-    taba, warnflag = ComputeALegendre(FHT, tabG)
+    taba, warnflag = ComputeA(FHT, tabG)
 
     # Set up the table for integration
     FHTlist = [deepcopy(FHT) for k = 1:Threads.nthreads()]
 
     return taba, FHTlist
 end
+
+
+function setup_chebyshev_integration(Ku::Int64, qself::Float64, xmax::Float64, PARALLEL::Bool=false)
+    # Filling in the arrays used in the Chebyshev quadrature
+    FHT = FiniteHilbertTransform.ChebyshevFHT(Ku)
+
+    # Compute the function G(u)
+    tabG = CGFuncPlasma(FHT.tabu, qself, xmax)
+
+    # Compute the coefficients for integration
+    taba, warnflag = ComputeA(FHT, tabG)
+
+    # Set up the table for integration
+    FHTlist = [deepcopy(FHT) for k = 1:Threads.nthreads()]
+
+    return taba, FHTlist
+end
+
+
 
 
 
@@ -319,7 +291,7 @@ function parse_commandline()
         "--Etamax"
             help     = "Maximum imaginary frequency"
             arg_type = Float64
-            default  = -0.01
+            default  = 3.0
         "--Cmode"
             help     = "Continuation mode for damped calculation (legendre/chebyshev,rational)"
             arg_type = String
@@ -364,6 +336,7 @@ function main()
     qself    = parsed_args["qSELF"]
     xmax     = parsed_args["xmax"]
     K_u      = parsed_args["K_u"]
+    CMODE    = parsed_args["Cmode"]
 
 
     if (PARALLEL)
@@ -379,20 +352,15 @@ function main()
     # (flat) array of omega values to check
     tabomega = get_tabomega(tabOmega,tabEta)
 
-    taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
+    if (CMODE=="legendre")
+        taba,struct_tabLeg = setup_legendre_integration(K_u,qself,xmax,PARALLEL)
+    elseif (CMODE=="chebyshev")
+        taba,struct_tabLeg = setup_chebyshev_integration(K_u,qself,xmax,PARALLEL)
+    else
+        throw(DomainError(CMODE,"Integration type must be legendre or chebyshev."))
+    end
+
     @time tabIminusXi = ComputeIminusXi(tabomega,taba,xmax,struct_tabLeg)
-
-
-    # Prefix of the directory where the files are dumped
-    prefixnamefile = "data/"
-
-    # Name of the file where the data is dumped
-    namefile = prefixnamefile*"data_"*parsed_args["Cmode"]*"_Plasma_Ku_"*string(K_u)*
-               "_qSELF_"*string(qself)*"_xmax_"*string(xmax)*".hf5"
-
-    # you can save the data by uncommenting this:
-    #print("Dumping the data | ")
-    #@time FiniteHilbertTransform.dump_tabIminusXi(namefile,tabomega,tabIminusXi) # Dumping the values of det[I-Xi]
 
     epsilon_real = reshape(real.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
     epsilon_imag = reshape(imag.(tabIminusXi),parsed_args["nEta"],parsed_args["nOmega"])
@@ -400,8 +368,8 @@ function main()
 
 
     # Plot
-    contour(tabOmega,tabEta,log10.(epsilon), levels=10, color=:black, #levels=[-2.0, -1.5, -1.0, -0.5, -0.25, 0.0], 
-            xlabel="Re[ω]", ylabel="Im[ω]", xlims=(-4, 4), ylims=(-3, 0),
+    contour(tabOmega,tabEta,log10.(epsilon), levels=10, color=:black, 
+            xlabel="Re[ω]", ylabel="Im[ω]", xlims=(parsed_args["Omegamin"],parsed_args["Omegamax"]), ylims=(parsed_args["Etamin"],parsed_args["Etamax"]),
             clims=(-2, 0), aspect_ratio=:equal, legend=false)
     savefig("plasmademo.png")
 

@@ -14,12 +14,13 @@ struct ChebyshevFHT <: AbstractFHT
 
     tabu::Array{Float64,1}     # u values (sampling points)
     tabw::Array{Float64,1}     # w values (weights at sampling points)
-    tabP::Matrix{Float64}     # P_k(u) values (Ku x Ku)
+    tabP::Matrix{Float64}     # a values
     tabc::Vector{Float64}     # prefactor at each sampling point
+    taba::Array{Float64,1}
 
     # arrays for the continuation
-    tabPLeg::Array{ComplexF64,1} # Static container for tabPLeg
-    tabQLeg::Array{ComplexF64,1} # Static container for tabQLeg
+    tabTLeg::Array{ComplexF64,1} # Static container for tabTLeg
+    tabULeg::Array{ComplexF64,1} # Static container for tabULeg
     tabDLeg::Array{ComplexF64,1} # Static container for tabDLeg
 
 end
@@ -35,7 +36,7 @@ function ChebyshevFHT(Ku::Int64;name::String="Chebyshev")
 
     tabu,tabw,tabc,tabP = tabCquad(Ku)
 
-    return ChebyshevFHT(name,Ku,tabu,tabw,tabP,tabc,
+    return ChebyshevFHT(name,Ku,tabu,tabw,tabP,tabc,zeros(Float64,Ku),
                                   zeros(ComplexF64,Ku),zeros(ComplexF64,Ku),zeros(ComplexF64,Ku))
 
 end
@@ -59,14 +60,14 @@ function GettabD!(omg::ComplexF64,
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using DAMPED Chebyshev integration.")
         end
 
-        get_Xi_DAMPED(omg,FHT.taba)
+        get_Xi_DAMPED(omg,FHT)
 
     elseif (imag(omg) == 0.0)
         if verbose > 2
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using NEUTRAL Chebyshev integration.")
         end
 
-        get_Xi_NEUTRAL(omg,FHT.taba)
+        get_Xi_NEUTRAL(omg,FHT)
 
     else
         # by default use unstable integration
@@ -74,7 +75,7 @@ function GettabD!(omg::ComplexF64,
             println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using UNSTABLE Chebyshev integration.")
         end
 
-        get_Xi_UNSTABLE(omg,FHT.taba)
+        get_Xi_UNSTABLE(omg,FHT)
     end
 end
 
@@ -190,15 +191,31 @@ include("Damped.jl")
 
 function GetaXi!(FHT::ChebyshevFHT,
                  tabGXi::AbstractVector{Float64},
-                 res::Vector{Float64},warnflag::Vector{Float64})
+                 res::Vector{Float64},warnflag::Int64)
 
      # Perfoming the discrete sine transform
      taba_temp = FFTW.r2r(tabGXi,FFTW.RODFT10,1)
 
      for i=1:FHT.Ku
-         res[i] = taba_temp[i] / FHT.Ku
+        FHT.taba[i] = taba_temp[i] / FHT.Ku
      end
- end
+
+     return FHT.taba,warnflag
+ 
+end
+
+function GetaXi!(FHT::ChebyshevFHT,
+    tabGXi::AbstractVector{Float64},
+    res::Vector{Float64},warnflag::Vector{Float64})
+
+    println("FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer.")
+
+    res,warnval = GetaXi!(FHT,tabG,res,0)
+    warnflag[1] = warnval
+
+    return res,warnflag
+
+end
 
 """
 
@@ -209,12 +226,45 @@ function GetaXi(FHT::ChebyshevFHT,
 
 
     # start with no warnings
-    warnflag = zeros(FHT.Ku)
+    warnflag = 0#zeros(FHT.Ku)
 
     res = zeros(Float64,FHT.Ku)
 
     GetaXi!(FHT,tabGXi,res,warnflag)
 
-    return res,warnflag
+    return FHT.taba,warnflag
 
 end
+
+
+function GetIminusXi(ϖ::Complex{Float64},taba::Vector{Float64},FHT::ChebyshevFHT;verbose::Int64=0)
+
+    if (imag(ϖ) < 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using DAMPED Chebyshev integration.")
+        end
+
+        xi = get_Xi_DAMPED(ϖ,FHT)
+
+    elseif (imag(ϖ) == 0.0)
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using NEUTRAL Chebyshev integration.")
+        end
+
+        xi = get_Xi_NEUTRAL(ϖ,FHT)
+
+    else
+        # by default use unstable integration
+        if verbose > 2
+            println("FiniteHilbertTransform.Chebyshev.get_Chebyshev_Xi: Using UNSTABLE Chebyshev integration.")
+        end
+
+        xi = get_Xi_UNSTABLE(ϖ,FHT)
+    end
+
+    # compute 1.0 - xi
+    IminusXi = 1.0 - xi
+
+    return IminusXi # Output
+end
+

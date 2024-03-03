@@ -2,8 +2,11 @@
 # FiniteHilbertTransform.jl
 
 [![Test Builds](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/CI.yml)
-[![codecov](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl/graph/badge.svg?token=LO51PVUTU1)](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl)
+[![codecov](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl/coverage.svg)](https://codecov.io/github/JuliaStellarDynamics/FiniteHilbertTransform.jl)
 [![image](https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl/actions/workflows/documentation.yml/badge.svg?branch=documentation)](https://juliastellardynamics.github.io/FiniteHilbertTransform.jl/)
+[![image](https://img.shields.io/badge/julia-stable-blue)](https://github.com/JuliaStellarDynamics/OrbitalElements.jl/actions/workflows/devCI.yml)
+[![image](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/JuliaStellarDynamics/OrbitalElements.jl/blob/v2.0/LICENSE)
+[![image](http://img.shields.io/badge/DOI-10.48550/arXiv.2311.10630-blue.svg)](http://dx.doi.org/10.48550/arXiv.2311.10630)
 
 **FiniteHilbertTransform.jl** is a Julia package designed to compute the finite version of the Hilbert transformations. This toolbox is inspired by Tricomi's work on the finite Hilbert transform from 1957. In the context of gravitational dynamics, the finite Hilbert transform may be used as a scheme for analytic continuation to the lower half of the complex plane. See [Fouvry & Prunet (2022)](https://ui.adsabs.harvard.edu/abs/2022MNRAS.509.2443F/abstract), or [Petersen et al. (2024)](https://ui.adsabs.harvard.edu/abs/2023arXiv231110630P/abstract) for details.
 
@@ -16,9 +19,10 @@ To invoke Julia in the Terminal, you need to make sure that the `julia` command-
 See [here](https://julialang.org/downloads/platform/#optional_add_julia_to_path) for detailed instructions.
 
 Once Julia installed, obtain the `FiniteHilbertTransform.jl` library[^1][^2] and compile it by running:
-    ```
-    julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
-    ```
+
+```
+julia -e 'using Pkg; Pkg.add(url="https://github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl.git")'
+```
 
 ---
 ## Quickstart

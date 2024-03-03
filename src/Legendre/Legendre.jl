@@ -108,6 +108,8 @@ omg = 1.0 + 0.5im
 GettabD!(omg, tabLeg, verbose=2)
 ```
 
+@IMPROVE, verbose creates allocations.
+
 """
 function GettabD!(omg::ComplexF64,
                   struct_tabLeg::LegendreFHT;
@@ -422,43 +424,74 @@ GetaXi!(FHT, tabGXi, res, warnflag)
 ```
 """
 function GetaXi!(FHT::LegendreFHT,
-                 tabGXi::AbstractVector{Float64},
-                 res::Vector{Float64},warnflag::Vector{Float64})
+                 tabG::AbstractVector{Float64},
+                 res::Vector{Float64},warnflag::Int64)
 
-    # Loop over the Legendre functions
-    for k=1:FHT.Ku
+    # check vector length for agreement before proceeding
+    @assert length(tabG) == FHT.Ku "FiniteHilbertTransform.Legendre.GetaXi!: tabG length is not the same as Ku."
 
-        res[k] = 0.0
-        warnflag[k] = 0.0
+    # check vector for nan or inf: if there are, loop through and zero out.
+    # see speed discussion here: we might be able to do even better
+    # https://discourse.julialang.org/t/fastest-way-to-check-for-inf-or-nan-in-an-array/76954/27
+    if 1==0#isfinite(sum(tabG))
 
-        for i=1:FHT.Ku # Loop over the G-L nodes
+        # Loop over the Legendre functions
+        for k=1:FHT.Ku
 
-            Gval = tabGXi[i] # Current value of G[u_i]
+            # do the inner sum over u as a vector
 
-            # check for NaN contribution: skip this contribution in that case
-            if isnan(Gval)
-                warnflag[k] += 1
-                continue
-            end
+            # weight * G(u) * P_k(u)
+            res[k] = sum(FHT.tabw .* tabG .* FHT.tabP[k]) # Update of the sum
 
-            # check for INF contribution: skip the contribution in that case
-            if isinf(Gval)
-                warnflag[k] += 1
-                continue
-            end
+            res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
 
-            # Current weight
-            w = FHT.tabw[i]
-
-            # Current value of P_k
-            P = FHT.tabP[k,i]
-
-            res[k] += w*Gval*P # Update of the sum
         end
 
-        res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
+    else
+
+        # Loop over the Legendre functions
+        for k=1:FHT.Ku
+
+            res[k] = 0.0
+
+            for i=1:FHT.Ku # Loop over the G-L nodes
+
+                Gval = tabG[i] # Current value of G[u_i]
+
+                # check for NaN contribution: skip this contribution in that case
+                if isnan(Gval) || isinf(Gval)
+                    warnflag += 1
+                    continue
+                end
+
+                # Current weight
+                w = FHT.tabw[i]
+
+                # Current value of P_k
+                P = FHT.tabP[k,i]
+
+                res[k] += w*Gval*P # Update of the sum
+            end
+
+            res[k] *= FHT.tabc[k] # Multiplying by the Legendre prefactor.
+
+        end
 
     end
+
+    return res,warnflag
+
+end
+
+"""compatibility signature"""
+function GetaXi!(FHT::LegendreFHT,
+    tabG::AbstractVector{Float64},
+    res::Vector{Float64},warnflag::Vector{Float64})
+
+    println("FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer.")
+
+    res,warnval = GetaXi!(FHT,tabG,res,0)
+    warnflag[1] = warnval
 
     return res,warnflag
 
@@ -492,12 +525,55 @@ function GetaXi(FHT::LegendreFHT,
                 tabGXi::Array{Float64})
 
     # start with no warnings
-    warnflag = zeros(FHT.Ku)
+    warnflag = 0
 
     # start with zero contribution
-    res = zeros(FHT.Ku)
+    res = zeros(Float64,FHT.Ku)
 
     GetaXi!(FHT,tabGXi,res,warnflag)
 
     return res,warnflag
 end
+
+
+"""
+Compute the values of I-Xi(omg) for a given complex frequency.
+
+# Arguments
+- `omg::Complex{Float64}`: Complex frequency.
+- `taba::Vector{Float64}`: Vector of coefficients a_k(u).
+- `xmax::Float64`: Maximum value of x.
+- `FHT::FiniteHilbertTransform.AbstractFHT`: AbstractFHT structure.
+
+# Returns
+- `IminusXi::Complex{Float64}`: Value of I-Xi(omg).
+
+# Example
+```julia
+GetLegendreIminusXiPlasma(1.0 + 1.0im, taba, 10.0, FHT)
+```
+"""
+function GetIminusXi(ϖ::Complex{Float64},taba::Vector{Float64},FHT::LegendreFHT)
+
+
+    # Rescale the COMPLEX frequency
+    K_u = size(taba,1)
+
+    # compute the Hilbert-transformed Legendre functions
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+
+    xi = 0.0 + 0.0*im # Initialise xi
+
+    # loop over the Legendre functions
+    for k=1:(K_u)
+
+        # add the contribution
+        xi += taba[k]*FHT.tabDLeg[k]
+    end
+
+    # compute 1.0 - xi
+    IminusXi = 1.0 - xi
+
+    return IminusXi # Output
+end
+
