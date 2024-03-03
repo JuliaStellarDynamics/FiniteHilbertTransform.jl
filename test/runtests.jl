@@ -66,6 +66,21 @@ FiniteHilbertTransform.GettabD!(ϖ,FHT)
     @test imag(FHT.tabPLeg[1]) == 0.0
 end
 
+@testset "Legendre Damped Frequency: Heaviside checks" begin
+    ϖ = 0.99 - 0.02im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ -4.48863636973214 atol=tol
+    ϖ = 1.0 - 0.02im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ -4.605220183488258 atol=tol
+    ϖ = 1.01 - 0.02im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ -4.498635453116724 atol=tol
+    ϖ = -1.01 - 0.02im
+    FiniteHilbertTransform.GettabD!(ϖ,FHT)
+    @test real(FHT.tabDLeg[1]) ≈ 4.498635453116724 atol=tol
+end
+
 # check the quadrature approximation
 # by checking with all ones, we know the analytic value
 @testset "Legendre Quadrature" begin
