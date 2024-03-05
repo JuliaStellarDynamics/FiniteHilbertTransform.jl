@@ -12,4 +12,4 @@ makedocs(sitename = "FiniteHilbertTransform.jl",
                ],
          format = Documenter.HTML(prettyurls=false))
 
-deploydocs(repo="github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl",devbranch="documentation")
+deploydocs(repo="github.com/JuliaStellarDynamics/FiniteHilbertTransform.jl",devbranch="main")
