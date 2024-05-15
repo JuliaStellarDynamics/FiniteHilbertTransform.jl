@@ -488,7 +488,7 @@ function GetaXi!(FHT::LegendreFHT,
     tabG::AbstractVector{Float64},
     res::Vector{Float64},warnflag::Vector{Float64})
 
-    println("FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer.")
+    @warn "FiniteHilbertTransform.GetaXi!: deprecation warning: warnflag is now an integer." maxlog=1
 
     res,warnval = GetaXi!(FHT,tabG,res,0)
     warnflag[1] = warnval
