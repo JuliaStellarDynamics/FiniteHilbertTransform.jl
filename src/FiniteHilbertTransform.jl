@@ -24,6 +24,7 @@ module FiniteHilbertTransform
 abstract type AbstractFHT  end
 
 # bring in the generic integration tools
+include("Multithreading.jl")
 include("Integrate.jl")
 
 end # module

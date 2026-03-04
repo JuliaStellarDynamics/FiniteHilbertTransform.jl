@@ -126,11 +126,14 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
     # define a table to store the value of det[I-Xi].
     tabIminusXi = zeros(Complex{Float64},nomega)
 
+    pos_threadid = get_pos_threadid()
+
     # loop over all the considered COMPLEX frequencies
-    Threads.@threads for iomega=1:nomega
+    Threads.@threads :static for iomega=1:nomega
 
         # ID of the current thread
-        thr = Threads.threadid()
+        tid = Threads.threadid()
+        thr = pos_threadid[tid]
 
         # compute I-Xi(omg) using the parallel containers
         val = FiniteHilbertTransform.GetIminusXi(tabomega[iomega]/xmax,taba,struct_tabFHT[thr])
