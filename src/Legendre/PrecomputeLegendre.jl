@@ -1,10 +1,8 @@
-"""PrecomputeLegendre.jl
-
-Precompute several items for Legendre integration.
-
 """
+PrecomputeLegendre.jl
 
-
+This file contains functions to precompute several items for Legendre integration, including the nodes and weights of the Gauss-Legendre quadrature, the normalization constants for Legendre modes, and the values of the Legendre polynomials evaluated at quadrature points.
+"""
 
 """
     tabuwGLquad(K_u::Int64)

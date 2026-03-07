@@ -18,12 +18,12 @@ For a given discrete function f(x) defined on a finite interval [-1, 1], the FHT
 """
 module FiniteHilbertTransform
 
-
-
 # make an abstract FiniteHilbertTransform type
-abstract type AbstractFHT  end
+abstract type AbstractFHT end
 
 # bring in the generic integration tools
 include("Integrate.jl")
+
+export LegendreFHT
 
 end # module

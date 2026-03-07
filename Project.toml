@@ -1,14 +1,15 @@
 name = "FiniteHilbertTransform"
 uuid = "68cdf181-988b-4042-8999-0b9541c1c3c2"
 authors = ["Mike Petersen <petersen@iap.fr>", "Mathieu Roule <roule@iap.fr>"]
-version = "1.0.0dev-0"
+version = "1.0.0-dev-0"
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
-julia = "1.6.7"
+julia = "^1.6.7"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
