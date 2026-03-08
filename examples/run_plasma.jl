@@ -11,7 +11,7 @@ julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega
 using Pkg
 
 # Install or update required packages
-Pkg.add(["Plots", "ArgParse", "FiniteHilbertTransform"])
+Pkg.add(["Plots", "ArgParse"])
 
 ########################################
 # Importing the necessary modules
@@ -133,7 +133,7 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
     # define a table to store the value of det[I-Xi].
     tabIminusXi = zeros(Complex{Float64},nomega)
 
-    pos_threadid = get_pos_threadid()
+    pos_threadid = FiniteHilbertTransform.get_pos_threadid()
 
     # loop over all the considered COMPLEX frequencies
     Threads.@threads :static for iomega=1:nomega

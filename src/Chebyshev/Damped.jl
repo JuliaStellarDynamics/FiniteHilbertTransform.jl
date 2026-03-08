@@ -1,7 +1,7 @@
 
 
 """
-    get_Xi_DAMPED(n::Int, alpha::Real)
+    get_Xi_DAMPED(omg::ComplexF64, struct_tabCheb::ChebyshevFHT)
 
 Compute the damping factor for the Chebyshev polynomial of the first kind.
 
@@ -10,7 +10,7 @@ Compute the damping factor for the Chebyshev polynomial of the first kind.
 - `alpha::Real`: The damping parameter.
 
 # Returns
-- `Xi::Vector{Complex{Float64}}`: The damping factor for the Chebyshev polynomial.
+- `Xi::Complex{Float64}`: The damping factor for the Chebyshev polynomial.
 
 # Examples
 """
