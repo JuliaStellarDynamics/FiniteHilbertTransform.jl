@@ -9,10 +9,17 @@ julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega
 # Installing the necessary libraries
 ########################################
 using Pkg
-Pkg.add("Plots")
-Pkg.add("ArgParse")
 
+# Install or update required packages
+Pkg.add(["Plots", "ArgParse", "FiniteHilbertTransform"])
+
+########################################
+# Importing the necessary modules
+########################################
+using Plots
+using ArgParse
 using FiniteHilbertTransform
+
 
 
 """
@@ -238,10 +245,6 @@ end
 
 
 
-
-using Plots
-using ArgParse
-
 function parse_commandline()
     #=parse_commandline
 
@@ -379,4 +382,7 @@ function main()
 
 end
 
+########################################
+# Entry point
+########################################
 main()
