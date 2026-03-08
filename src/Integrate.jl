@@ -1,8 +1,11 @@
-# perform discrete sine transform in Gauss-Chebyshev quadrature
-using FFTW
 
 # access to the nodes and weights of the Gauss-Legendre quadrature
 using FastGaussQuadrature
+
+# perform discrete sine transform in Gauss-Chebyshev quadrature
+using FFTW
+
+
 
 # Chebyshev:
 # Bring in the prefactors

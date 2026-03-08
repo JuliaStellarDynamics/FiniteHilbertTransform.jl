@@ -9,10 +9,17 @@ julia --threads 4 run_plasma.jl --Cmode legendre --parallel 1 --K_u 205 --nOmega
 # Installing the necessary libraries
 ########################################
 using Pkg
-Pkg.add("Plots")
-Pkg.add("ArgParse")
 
+# Install or update required packages
+Pkg.add(["Plots", "ArgParse"])
+
+########################################
+# Importing the necessary modules
+########################################
+using Plots
+using ArgParse
 using FiniteHilbertTransform
+
 
 
 """
@@ -126,11 +133,14 @@ function ComputeIminusXi(tabomega::Vector{Complex{Float64}},
     # define a table to store the value of det[I-Xi].
     tabIminusXi = zeros(Complex{Float64},nomega)
 
+    pos_threadid = FiniteHilbertTransform.get_pos_threadid()
+
     # loop over all the considered COMPLEX frequencies
-    Threads.@threads for iomega=1:nomega
+    Threads.@threads :static for iomega=1:nomega
 
         # ID of the current thread
-        thr = Threads.threadid()
+        tid = Threads.threadid()
+        thr = pos_threadid[tid]
 
         # compute I-Xi(omg) using the parallel containers
         val = FiniteHilbertTransform.GetIminusXi(tabomega[iomega]/xmax,taba,struct_tabFHT[thr])
@@ -234,10 +244,6 @@ function get_tabomega(tabOmega::Vector{Float64},tabEta::Vector{Float64})
 end
 
 
-
-
-using Plots
-using ArgParse
 
 function parse_commandline()
     #=parse_commandline
@@ -376,4 +382,7 @@ function main()
 
 end
 
+########################################
+# Entry point
+########################################
 main()
