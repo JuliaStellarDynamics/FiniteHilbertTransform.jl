@@ -104,7 +104,7 @@ end
     @test FiniteHilbertTransform.GetaXi(FHT,Gvals)[2] == 0
     # test compatibility version directly
     res = zeros(Float64,Ku)
-    warnflag = zeros(Float64,Ku)
+    warnflag = 0
     @test FiniteHilbertTransform.GetaXi!(FHT,Gvals,res,warnflag)[2][1] == 0
     #
     ϖ = 0.02 + 0.02im
